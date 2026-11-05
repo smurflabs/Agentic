@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/node_modules/
+.git/
+.github/
+.vs/
+.env
+publish/
+publish-*/
+data/
+logs/
+tests/
+samples/
+tools/

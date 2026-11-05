@@ -2,6 +2,8 @@
 
 This guide takes you from a fresh clone to a running server. Then it covers the optional parts: tools, services, a Windows Service and publishing the client apps. [README.md](README.md) explains every feature and setting in depth.
 
+**Docker:** to run the published image on Linux instead of building on Windows, go straight to [section 11](#11-docker).
+
 The client apps connect to this server:
 
 | Repository | What it is |
@@ -13,7 +15,7 @@ The client apps connect to this server:
 
 ## 1. What you need
 
-- **Windows 10/11 or Windows Server 2019 or later, x64.** The server, its service mode and the scripts in `tools\` are built and tested on Windows. Other systems are not supported.
+- **Windows 10/11 or Windows Server 2019 or later, x64.** The server, its service mode and the scripts in `tools\` are built and tested on Windows. On Linux, use the Docker image (section 11).
 - **The [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** to build. The published `Agentic.exe` is self-contained, so the machine that only runs it does not need .NET.
 - **A model provider.** The server talks to an OpenAI-compatible API (`/chat/completions`, `/models`). The shipped entry is OpenWebUI (`AIProviders.OpenWebUI`), which can sit in front of llama.cpp, Ollama, vLLM or cloud providers. You need its base URL and an API key.
 - **Optional extras** (section 6): Node.js 20 or later and Google Chrome for the browser, diagram and reverse-engineering tools. Ghidra for reverse engineering. A Gitea instance. Self-hosted speech, image and music servers.
@@ -70,7 +72,7 @@ Use a dedicated, non-admin account on the provider for this key.
 `Models[]` lists the models that agents and Chat can use. The shipped list names the original author's models, so change each entry's `ModelId` to a model your provider serves. `GET <BaseUrl>/models` on the provider lists them.
 
 - Keep the `Key` values (`local-main`, `coding-t2`, `vision`, ...). Agents, fallbacks and routing refer to models by key.
-- `IsLocal: true` marks a free local model. Agents run on it by default, and `MaxConcurrency` is its number of parallel slots.
+- `IsLocal: true` marks a free local model on your own server (section 4.3). Agents run on it by default.
 - **Cloud models are never used until they have a price** (fail-closed). Set the prices in `Models[].Pricing`, or after the first start under **Finance → Model pricing**.
 
 Then check the configuration and every model:
@@ -82,7 +84,28 @@ C:\Agentic\Agentic.exe --probe-models      # chat, tool calls and vision for eve
 
 `--validate-config` names each problem and exits with code 1 when the config is invalid. Missing secrets for optional services (section 6) show as warnings only.
 
-### 4.3 Web server
+### 4.3 Local models
+
+`local-main` and `local-vision` are your own model servers (llama.cpp or similar), free for agents. They are optional:
+
+```jsonc
+"LocalModels": {
+  "Enabled": true,       // false: this server has no local models
+  "Slots": 4,            // requests each local model server works on at once; 0 = each model's MaxConcurrency
+  "SlotsByModel": {}     // slots for one model, e.g. { "local-vision": 2 }
+}
+```
+
+- **Slots:** set `Slots` to the number of requests your servers handle in parallel (llama.cpp's `--parallel`). Use `SlotsByModel` when the two servers differ.
+- **No local models:** set `"Enabled": false`, or the environment variable `AGENTIC_LocalModels__Enabled=false`. Then:
+  - `local-main` and `local-vision` are dropped, with every reference to them: routing ladders, spillover, fallbacks and agents' model lists.
+  - Agents that only had local models use the first model of the `Default` ladder.
+  - Global tasks are off, because their planner runs only on local models.
+  - Learning studies use rules only.
+  - Agents run on cloud models, which need prices first (section 4.2).
+- **Switching off later:** agents keep the model list they were saved with, but a model that no longer exists is skipped. The shipped agents all have cloud models as well. To change an agent's models, edit the agent in the web app.
+
+### 4.4 Web server
 
 ```jsonc
 "Server": {
@@ -98,17 +121,17 @@ Other machines can reach the server through an HTTPS reverse proxy (Caddy, nginx
 netsh http add urlacl url=http://+:8080/ user=DOMAIN\your-service-account
 ```
 
-### 4.4 Built-in MCP servers you don't run
+### 4.5 MCP servers that need extra software
 
-Some shipped `McpServers[]` entries are enabled but need external software or a machine you may not have:
+Three shipped `McpServers[]` entries are **off** until you set up what they need. Then set `"Enabled": true`:
 
-| Id | Needs | If you don't have it |
-|---|---|---|
-| `code-exec` | An Open Terminal MCP server (`Endpoint`) plus `MCP_CODE_EXEC_TOKEN` | Set `"Enabled": false` |
-| `browser` | Node.js, `tools\playwright-mcp` (section 6), Chrome | Set `"Enabled": false` |
-| `rea` | Node.js, `tools\rea` (section 6), Ghidra | Set `"Enabled": false` |
+| Id | Needs |
+|---|---|
+| `code-exec` | An Open Terminal MCP server (`Endpoint`) plus `MCP_CODE_EXEC_TOKEN` |
+| `browser` | Node.js, `tools\playwright-mcp` (section 6), Chrome |
+| `rea` | Node.js, `tools\rea` (section 6), Ghidra |
 
-A server that cannot connect only removes its own tools. Everything else keeps working, but turning unused entries off keeps the dashboard and the logs clean.
+The other built-in servers need nothing extra. A server that cannot connect only removes its own tools; everything else keeps working.
 
 ## 5. First start
 
@@ -264,12 +287,79 @@ The builds go to `Updates.Directory`, which is `updates` next to `appsettings.js
 
 | Symptom | Check |
 |---|---|
-| `HttpListenerException: Access is denied` | Bind to `127.0.0.1`, run as administrator, or add a URL ACL (section 4.3). |
+| `HttpListenerException: Access is denied` | Bind to `127.0.0.1`, run as administrator, or add a URL ACL (section 4.4). |
 | `AIProviders.OpenWebUI.ApiKey is not set` | Set `AGENTIC_AIProviders__OpenWebUI__ApiKey` and open a new console (or restart the service). |
 | Agents never use cloud models | The model has no price, the balance or daily limit is used up, or the model is not in the agent's `AllowedModels`. |
 | A model's circuit shows **Open** | The provider fails for that model. Run `--probe-models`, or **Reset** it on the Models page. |
-| An MCP server shows disconnected | Its program, address or token is missing (section 4.4 and section 6). |
+| An MCP server shows disconnected | Its program, address or token is missing (section 4.5 and section 6). |
+| Agents fail with "no AI models assigned" | Local models are off and the agent had no other model: give it one on its page, or price the Default ladder's first model (section 4.3). |
 | Anything else | `logs\agentic-YYYYMMDD.log`, and the web app's **Live events** and **Audit** pages. |
+
+## 11. Docker
+
+The image `ghcr.io/smurflabs/agentic` runs the server on Linux (x64). GitHub Actions builds it from this repository's `Dockerfile` on every push to `main`. Each build checks that the server starts and answers, then publishes the image with three tags: `latest`, the version (for example `2.0.24`) and `sha-<commit>`.
+
+### Start it with Docker Compose
+
+You need Docker with the Compose plugin. From this repository, or from a folder holding only `docker-compose.yml` and `.env.example`:
+
+```bash
+cp .env.example .env          # set OPENWEBUI_BASE_URL and OPENWEBUI_API_KEY
+docker compose up -d
+docker compose logs agentic   # shows the one-time password for "admin" on the first start
+```
+
+Open `http://localhost:8080` and sign in as `admin`. Then continue with section 5 (prices, users, API keys).
+
+### Settings
+
+Compose passes these `.env` values to the server:
+
+| `.env` | Setting | Default |
+|---|---|---|
+| `OPENWEBUI_BASE_URL` | `AIProviders.OpenWebUI.BaseUrl` | (required) |
+| `OPENWEBUI_API_KEY` | `AIProviders.OpenWebUI.ApiKey` | (required) |
+| `LOCAL_MODELS_ENABLED` | `LocalModels.Enabled` (section 4.3) | `false` |
+| `LOCAL_MODEL_SLOTS` | `LocalModels.Slots` | `4` |
+| `PUBLIC_URL` | `Server.PublicUrl` | empty |
+| `AGENTIC_PORT` | the port on this machine | `8080` |
+
+Any other setting can be added under `environment:` in `docker-compose.yml` as `AGENTIC_<Section>__<Key>`, for example `AGENTIC_ImageGeneration__ApiKey`.
+
+### Where things are
+
+The `agentic-data` volume holds `/data`:
+
+| Path | What |
+|---|---|
+| `/data/appsettings.json` | The configuration. It is copied from the image's default on the first start; models and agents are set here (section 4). |
+| `/data/data/` | Database, files, backups |
+| `/data/logs/` | Logs |
+
+To edit the configuration:
+
+```bash
+docker compose cp agentic:/data/appsettings.json .
+# edit appsettings.json
+docker compose cp appsettings.json agentic:/data/appsettings.json
+docker compose restart agentic
+```
+
+To keep `/data` in a folder on the host instead, replace `agentic-data:/data` with `./agentic-data:/data`. The server runs as user `app` (uid 1654), so first run `sudo chown -R 1654:1654 agentic-data`.
+
+### Updating
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+To build the image yourself, run `docker build -t agentic .`, or replace `image:` with `build: .` in `docker-compose.yml`.
+
+### Differences from Windows
+
+- The `shell` and `windows` tool servers need Windows and are off in the container.
+- The image has no Node.js or Chrome, so the `browser`, `rea` and Mermaid diagram tools are not available. Build your own image on top of this one to add them.
+- `--service` is Windows-only; Compose's `restart: unless-stopped` keeps the server running instead.
 
 ## License
 

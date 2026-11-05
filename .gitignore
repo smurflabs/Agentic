@@ -12,3 +12,5 @@ node_modules/
 # Downloaded at setup (see README): the Node.js runtime and the gitea-mcp binary.
 tools/node/
 tools/gitea-mcp/
+# Docker Compose settings (API keys)
+.env

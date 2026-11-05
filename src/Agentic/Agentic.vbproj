@@ -19,7 +19,7 @@
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
 
-  <!-- Single-file, self-contained Windows publish (dotnet publish -c Release -r win-x64) produces Agentic.exe -->
+  <!-- Single-file, self-contained publish: -r win-x64 produces Agentic.exe, -r linux-x64 (the Docker image) produces Agentic -->
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
@@ -52,6 +52,11 @@
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.12" />
     <PackageReference Include="Tomlyn" Version="2.10.1" />
     <PackageReference Include="YamlDotNet" Version="18.1.0" />
+  </ItemGroup>
+
+  <!-- Linux builds (Docker): Skia's native library for charts and SVG pictures, without a fontconfig dependency. -->
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('linux'))">
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.154.0" />
   </ItemGroup>
 
   <ItemGroup>

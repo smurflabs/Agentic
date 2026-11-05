@@ -1,0 +1,29 @@
+# The Agentic server with Docker Compose.
+#   1. cp .env.example .env    and fill in your model provider's address and key
+#   2. docker compose up -d
+#   3. docker compose logs agentic    shows the one-time admin password on the first start
+#   4. open http://localhost:8080
+# The configuration, database and files are kept in the agentic-data volume (/data/appsettings.json is the config).
+services:
+  agentic:
+    image: ghcr.io/smurflabs/agentic:latest
+    # To build from this folder instead of pulling the published image:
+    # build: .
+    container_name: agentic
+    restart: unless-stopped
+    ports:
+      - "${AGENTIC_PORT:-8080}:8080"
+    volumes:
+      - agentic-data:/data
+    environment:
+      # Your OpenAI-compatible model provider (OpenWebUI or another).
+      AGENTIC_AIProviders__OpenWebUI__BaseUrl: ${OPENWEBUI_BASE_URL:?Set OPENWEBUI_BASE_URL in .env}
+      AGENTIC_AIProviders__OpenWebUI__ApiKey: ${OPENWEBUI_API_KEY:?Set OPENWEBUI_API_KEY in .env}
+      # Local models (your own llama.cpp or similar servers): off unless you run them.
+      AGENTIC_LocalModels__Enabled: ${LOCAL_MODELS_ENABLED:-false}
+      AGENTIC_LocalModels__Slots: ${LOCAL_MODEL_SLOTS:-4}
+      # The address people use to reach this server (share links), e.g. https://agentic.example.com
+      AGENTIC_Server__PublicUrl: ${PUBLIC_URL:-}
+
+volumes:
+  agentic-data:

@@ -13,6 +13,8 @@ Namespace Configuration
         Public Property Admin As New AdminOptions()
         Public Property AIProviders As New Dictionary(Of String, AIProviderOptions)(StringComparer.OrdinalIgnoreCase)
         Public Property Models As New List(Of ModelOptions)
+        ''' <summary>Whether this server runs its own local models, and how many requests each takes at once (see LocalModelsOptions).</summary>
+        Public Property LocalModels As New LocalModelsOptions()
         Public Property Routing As New RoutingOptions()
         Public Property Vision As New VisionOptions()
         Public Property ImageGeneration As New ImageGenerationOptions()
@@ -180,6 +182,24 @@ Namespace Configuration
         ''' it in AllowedModels, may use it, and it is free. Nothing for the server's own models.</summary>
         <System.Text.Json.Serialization.JsonIgnore>
         Public Property ByoOwner As String
+    End Class
+
+    ''' <summary>
+    ''' The local models (Models[] entries with IsLocal: free, on your own GPU servers). Both settings can come from the
+    ''' environment, e.g. AGENTIC_LocalModels__Enabled=false or AGENTIC_LocalModels__Slots=2 (Docker).
+    ''' </summary>
+    Public Class LocalModelsOptions
+        ''' <summary>
+        ''' False: this server has no local models. Every IsLocal model is dropped at load, with every reference to it:
+        ''' routing ladders, spillover, fallbacks, agents' AllowedModels, Vision, Learning, global-task planners and
+        ''' schedules. Agents left with no model get the first model of the Default ladder; global tasks (local planners
+        ''' only) are switched off.
+        ''' </summary>
+        Public Property Enabled As Boolean = True
+        ''' <summary>Requests each local model server works on at once (its slots). 0: each model's own MaxConcurrency.</summary>
+        Public Property Slots As Integer
+        ''' <summary>Slots per local model key, over Slots, e.g. {"local-vision": 2}.</summary>
+        Public Property SlotsByModel As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
     End Class
 
     Public Class RoutingOptions

@@ -46,6 +46,60 @@ Public Class ConfigValidationTests
     End Sub
 
     <Fact>
+    Public Sub LocalModelsSetEachLocalModelsSlots()
+        Dim o = ConfigLoader.Load(IO.Path.Combine(AppContext.BaseDirectory, "appsettings.json")).Options
+        o.LocalModels.Slots = 2
+        o.LocalModels.SlotsByModel("local-vision") = 1
+        ConfigLoader.ApplyLocalModels(o)
+        Assert.Equal(2, o.Models.Single(Function(m) m.Key = "local-main").MaxConcurrency)
+        Assert.Equal(1, o.Models.Single(Function(m) m.Key = "local-vision").MaxConcurrency)
+        ' Cloud models keep their own limits.
+        Assert.All(o.Models.Where(Function(m) Not m.IsLocal), Sub(m) Assert.True(m.MaxConcurrency >= 4))
+        o.LocalModels.SlotsByModel("local-vision") = 0
+        Assert.Contains(ConfigValidator.Validate(o, requireApiKey:=False).Errors, Function(e) e.Contains("LocalModels.SlotsByModel.local-vision"))
+    End Sub
+
+    <Fact>
+    Public Sub WithoutLocalModelsTheShippedConfigRunsOnCloudModels()
+        Dim o = ConfigLoader.Load(IO.Path.Combine(AppContext.BaseDirectory, "appsettings.json")).Options
+        o.LocalModels.Enabled = False
+        ConfigLoader.ApplyLocalModels(o)
+        Assert.DoesNotContain(o.Models, Function(m) m.IsLocal)
+        Assert.All(o.Routing.Ladders.Values, Sub(l) Assert.DoesNotContain("local-main", l))
+        Assert.False(o.Routing.Spillover.Enabled)
+        Assert.Empty(o.Routing.Spillover.LocalCandidates)
+        Dim first = o.Routing.Ladders("Default")(0)
+        ' The default profile named only local-main: it gets the Default ladder's first model.
+        Assert.Equal(New List(Of String) From {first}, o.BaseProfiles.Single(Function(p) p.Id = "default").AllowedModels)
+        Assert.All(o.Agents.Where(Function(a) a.AllowedModels IsNot Nothing), Sub(a) Assert.DoesNotContain("local-main", a.AllowedModels, StringComparer.OrdinalIgnoreCase))
+        ' Global tasks plan on local models only (no budget for cloud ones): off without them.
+        Assert.False(o.GlobalTasks.Enabled)
+        Assert.Empty(o.Learning.ModelKeys)
+        Assert.All(o.Models, Sub(m) Assert.DoesNotContain("local-vision", m.Fallbacks))
+        Dim r = ConfigValidator.Validate(o, requireApiKey:=False)
+        Assert.True(r.IsValid, String.Join("; ", r.Errors))
+    End Sub
+
+    <Fact>
+    Public Sub OffWindowsTheShellAndWindowsServersAreOffAndDataPathsUseSlashes()
+        Dim o As New HostOptions()
+        Dim shell As New McpServerOptions With {.Id = "shell", .Command = "{self}", .Arguments = New List(Of String) From {"--mcp-shell", "{data}\workspace"}}
+        Dim windows As New McpServerOptions With {.Id = "windows", .Command = "{self}", .Arguments = New List(Of String) From {"--mcp-windows"}}
+        Dim files As New McpServerOptions With {.Id = "files", .Command = "{self}", .WorkingDirectory = "{data}\files",
+            .Arguments = New List(Of String) From {"--mcp-files", "--roots", "{data}\shared;{data}\workspace"}}
+        o.McpServers.AddRange({shell, windows, files})
+        ConfigLoader.ApplyPlatform(o, isWindows:=True)
+        Assert.All(o.McpServers, Sub(s) Assert.True(s.Enabled))
+        Assert.Equal("{data}\shared;{data}\workspace", files.Arguments(2))
+        ConfigLoader.ApplyPlatform(o, isWindows:=False)
+        Assert.False(shell.Enabled)
+        Assert.False(windows.Enabled)
+        Assert.True(files.Enabled)
+        Assert.Equal("{data}/shared;{data}/workspace", files.Arguments(2))
+        Assert.Equal("{data}/files", files.WorkingDirectory)
+    End Sub
+
+    <Fact>
     Public Sub DetectsDuplicateAgentIds()
         Dim o = Valid()
         o.Agents.Add(New ProfileOptions With {.Id = "A", .BaseProfileId = "default"})

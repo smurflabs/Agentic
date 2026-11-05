@@ -16,7 +16,7 @@ No IIS, ASP.NET, Kestrel, Node.js, Docker or separate web server is required.
 
 > **Isolated but collaborative.** Each agent has private state and its own permissions. Agents can ask each other for help, delegate work and return results, but only through the host-controlled, permissioned, persistent, audited message system. No agent can read another agent's memory, tasks, credentials or runtime.
 
-**Setting it up:** [SETUP.md](SETUP.md) walks through building, configuring and running the server, step by step. The client apps live in their own repositories: **Agentic_CLI** (terminal), **Agentic_Client** (desktop app) and **Agentic_VSCODE** (VS Code extension).
+**Setting it up:** [SETUP.md](SETUP.md) walks through building, configuring and running the server, step by step, on Windows or in Docker. The client apps live in their own repositories: **Agentic_CLI** (terminal), **Agentic_Client** (desktop app) and **Agentic_VSCODE** (VS Code extension).
 
 ---
 
@@ -57,7 +57,7 @@ C:\Agentic\Agentic.exe
 
 On first start, if `Admin.Users` is empty, the console prints a one-time password for the `admin` user. Open the dashboard at `http://127.0.0.1:8080` and sign in. To make a permanent user, run `Agentic.exe --hash-password` and add the hash to `Admin.Users` (see [Security](#8-security)).
 
-**Before agents may use cloud models, set prices.** Every cloud model ships unpriced, and an unpriced model is never used (fail-closed). Set USD per 1M input and output tokens in `appsettings.json` (`Models[].Pricing`) or in the dashboard under **Finance → Model pricing**. Also set a per-image price (`image-generation`) if agents should generate images. Until prices are set, agents run only on the free local model.
+**Before agents may use cloud models, set prices.** Every cloud model ships unpriced, and an unpriced model is never used (fail-closed). Set USD per 1M input and output tokens in `appsettings.json` (`Models[].Pricing`) or in the dashboard under **Finance → Model pricing**. Also set a per-image price (`image-generation`) if agents should generate images. Until prices are set, agents run only on the free local model. A server without local models sets `LocalModels.Enabled` to `false` ([SETUP.md](SETUP.md#43-local-models)); its agents then need priced cloud models.
 
 Command line:
 
@@ -92,7 +92,7 @@ Command line:
 │     reasoning (bounded AI/tool loop, checkpointed) · http-check · mcp-tool · noop│
 │                                                                                 │
 │  AI: ModelGateway → selection (permissions, tier, purpose, price) →             │
-│      local priority gate (4 slots, aging) → spillover if affordable →           │
+│      local priority gate (N slots, aging) → spillover if affordable →           │
 │      circuit breakers + fallbacks → OpenAI-compatible streaming client          │
 │  Economy: wallets, append-only ledger, reserve→settle, pricing                  │
 │  MCP: server manager (stdio/HTTP, reconnect), permission-filtered tools         │
@@ -137,8 +137,8 @@ These models were checked live against the OpenWebUI instance (2026-10-30 audit:
 
 | Key | Model | Fallbacks (in order) | Use |
 |---|---|---|---|
-| `local-main` | `FLINT` (local) | `local-vision` | **Default thinking model for every agent.** Free, 4 slots, no vision. Agent work is shared with `local-vision` all the time (`Routing.Spillover.LocalBalance`, see below), and `local-vision` also takes text work while this one is full (`Routing.Spillover.LocalCandidates`, keeping `LocalKeepFreeSlots` = 1 free), before any cloud spillover. |
-| `local-vision` | `Agents-A1-35B-VISION` (local) | | Free, 4 slots shared by chat and agents. Images, and text work local-main cannot take. |
+| `local-main` | `FLINT` (local) | `local-vision` | **Default thinking model for every agent.** Free, `LocalModels.Slots` slots (4 shipped), no vision. Agent work is shared with `local-vision` all the time (`Routing.Spillover.LocalBalance`, see below), and `local-vision` also takes text work while this one is full (`Routing.Spillover.LocalCandidates`, keeping `LocalKeepFreeSlots` = 1 free), before any cloud spillover. |
+| `local-vision` | `Agents-A1-35B-VISION` (local) | | Free, `LocalModels.Slots` slots (4 shipped) shared by chat and agents. Images, and text work local-main cannot take. |
 | `coding-t2` | `sev/deepseek-v4.1-flash-1017` ($0.02 / $0.02) | `coding-t2-alt` = `yqy/glm-5.3-flash` ($0.096 / $0.33), `coding-t2-alt2` = `dddai/claude-haiku-4-5` ($0.037 / $0.184) | Coding beyond the local model. |
 | `language-t2` | `sev/glm-5.3-flash` ($0.028 / $0.028) | `language-t2-alt` = `yqy/glm-5.3-flash`, `language-t2-alt2` = `dddai/claude-haiku-4-5` | Complex language and analysis work. |
 | `expert-t3` | `dddai/claude-sonnet-5` ($0.075 / $0.37) | `expert-t3-alt` = `yqy/glm-5.3-flash`, `expert-t3-alt2` = `sev/claude-sonnet-5` ($0.45 / $0.45) | Advanced coding, reverse engineering, hardest work. Sees images. |
@@ -708,6 +708,10 @@ Twelve more servers are built into Agentic.exe (`"Command": "{self}"`). Each one
 
 > **Renamed from AgentHost.** Variables with the old `AGENTHOST_` prefix still work; `AGENTIC_` wins when both are set. On first start, an existing `data\agenthost.db` (with its `-wal`/`-shm` files) is renamed to `data\agentic.db`. Old `agenthost-*` logs and backups age out with the normal retention. Prometheus metric names changed from `agenthost_*` to `agentic_*`, and the session cookie is now `agentic_session`, so you sign in again once.
 
+**Local models.** `LocalModels.Enabled` (true) says whether this server runs its own local models (`local-main`, `local-vision`); `false` drops them and every reference to them, and agents use the `Default` ladder's first model. `LocalModels.Slots` (4) is how many requests each local model server works on at once, and `LocalModels.SlotsByModel` sets one model's. Both work from the environment: `AGENTIC_LocalModels__Enabled=false`, `AGENTIC_LocalModels__Slots=2`. Details: [SETUP.md](SETUP.md#43-local-models).
+
+**Docker.** `Dockerfile` and `docker-compose.yml` run the server on Linux; the published image is `ghcr.io/smurflabs/agentic`. See [SETUP.md](SETUP.md#11-docker).
+
 **Secrets.** Environment variables are preferred, but the file may also hold secrets when that suits the deployment. Secrets in the file are redacted from logs and the dashboard.
 
 - The AI key goes in `AGENTIC_AIProviders__OpenWebUI__ApiKey`, or in `AIProviders.OpenWebUI.ApiKey`.
@@ -850,7 +854,7 @@ On a touch screen, Enter starts a new line and the send button sends. Opening a 
   - Compaction also happens automatically when the chat passes `Chat.AutoCompactPercent` (80%) of the window, or `HistoryMessages`.
   - Window sizes are known for common model families. `Chat.ContextWindows` overrides them, for example `{"my-model": 32000}`; the shipped configuration sets `qwen3.8-flash-MAX` to 128000.
   - Within one answer, each model call must fit the window with room to answer, because providers refuse longer prompts and never truncate them. Long tool loops (the CLI and the desktop app run many) shorten earlier tool output, oldest first, and the cut says how much was left out. If the provider still reports that the prompt is too long, Agentic cuts harder and sends that step once more.
-- **The local model's slots.** Chats (and API calls) with the local model take one of its slots (4 for the local Qwen), shared with the agents: **Models & access** counts them ("1 in chat").
+- **The local model's slots.** Chats (and API calls) with the local model take one of its slots (`LocalModels.Slots`), shared with the agents: **Models & access** counts them ("1 in chat").
   - People go before normal-priority agent work.
   - When every slot is busy, the answer shows its place in the queue ("In the queue for qwen3.8-flash-MAX: all 4 slots are busy · you are next") until the model starts thinking.
 - **All your windows stay in step.** An answer that is being written in another window, or in the desktop app, shows live in every window that has the chat open, together with its approvals and questions. The chat list marks chats that are being answered and chats that **need you**.
@@ -1469,7 +1473,7 @@ Useful alerts include `agentic_wallet_runway_days < 1`, `agentic_model_circuit_o
 | A model shows circuit **Open** | The provider is failing for that model (e.g. "no available channel"). Fallbacks are in use. Run `--probe-models`, or use **Reset** on the Models page. |
 | Tasks stay **Waiting** | The task is waiting on another agent's reply or on the admin Inbox. The deadline and wait keys are in the task details. |
 | `LOOP_DETECTED` / `DELEGATION_DEPTH_EXCEEDED` | Working as designed. Adjust the agents' instructions or the limits in `Communication`. |
-| Local model slow | Watch the 4-slot gauge and the queue. Raise priorities, allow spillover by pricing a cheap model, or reduce agents' scheduled AI work. |
+| Local model slow | Watch the slot gauge and the queue; raise `LocalModels.Slots` if your server handles more requests in parallel. Raise priorities, allow spillover by pricing a cheap model, or reduce agents' scheduled AI work. |
 | Logs | Files are `logs\agentic-YYYYMMDD.log` (JSON lines, rotated, secrets redacted). Use the dashboard's Live events and Audit pages. |
 
 ---

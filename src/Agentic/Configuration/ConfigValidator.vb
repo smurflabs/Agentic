@@ -157,6 +157,16 @@ Namespace Configuration
                     If String.Equals(f, m.Key, StringComparison.OrdinalIgnoreCase) Then r.AddError($"Model '{m.Key}' lists itself as a fallback.")
                 Next
             Next
+            Dim lm = o.LocalModels
+            If lm IsNot Nothing Then
+                If lm.Slots < 0 Then r.AddError("LocalModels.Slots must be 0 (each model's own MaxConcurrency) or more.")
+                For Each kv In If(lm.SlotsByModel, New Dictionary(Of String, Integer))
+                    If kv.Value < 1 Then r.AddError($"LocalModels.SlotsByModel.{kv.Key} must be 1 or more.")
+                    If lm.Enabled AndAlso Not o.Models.Any(Function(x) x.IsLocal AndAlso String.Equals(x.Key, kv.Key, StringComparison.OrdinalIgnoreCase)) Then
+                        r.AddWarning($"LocalModels.SlotsByModel names '{kv.Key}', which is not a local model.")
+                    End If
+                Next
+            End If
             Return keys
         End Function
 
