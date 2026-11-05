@@ -1,11 +1,10 @@
 <div align="center">
 
-<img src="src/Agentic/Dashboard/img/logo.png" alt="Agentic logo" width="96">
-
-# Agentic
+<img src="src/Agentic/Dashboard/img/logo.png" alt="Agentic" width="288">
 
 **A self-hosted server for teams of AI agents, and the people who work with them.**
 
+[![Release](https://github.com/smurflabs/Agentic/actions/workflows/release.yml/badge.svg)](https://github.com/smurflabs/Agentic/releases)
 [![Docker image](https://github.com/smurflabs/Agentic/actions/workflows/docker.yml/badge.svg)](https://github.com/smurflabs/Agentic/actions/workflows/docker.yml)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](LICENSE)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
@@ -117,7 +116,7 @@ Open <http://localhost:8080> and sign in as `admin`. The image is [`ghcr.io/smur
 
 ### Windows
 
-Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+Download `Agentic-<version>-win-x64.zip` from [Releases](https://github.com/smurflabs/Agentic/releases), extract it to `C:\Agentic`, and start at the `setx` line below. To build from source instead, you need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```powershell
 git clone https://github.com/smurflabs/Agentic.git
@@ -141,7 +140,7 @@ Open <http://127.0.0.1:8080> and sign in as `admin` with the password printed on
 | **Agentic Desktop** | [Agentic_desktop](https://github.com/smurflabs/Agentic_desktop) | The web app in a window of its own on Windows and Linux. It adds local MCP servers, Claude Code skills, and file and command tools that ask for approval. |
 | **Agentic for VS Code** | [Agentic_vscode](https://github.com/smurflabs/Agentic_vscode) | Chat inside VS Code, with tools that read, edit and run code in your workspace. |
 
-Every client signs in with a personal API key. In the web app, open the user menu and choose **API key**. Once an administrator publishes the clients from the server (`tools/publish-clients.ps1`), people download them from **Apps & updates**, and installed copies update themselves.
+Each repository's **Releases** page has ready-to-run builds. Every client signs in with a personal API key: in the web app, open the user menu and choose **API key**. An administrator can also publish the clients from the server (`tools/publish-clients.ps1`). People then download them from **Apps & updates**, and installed copies update themselves.
 
 ## How it works
 
