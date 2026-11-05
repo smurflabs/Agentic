@@ -10,7 +10,7 @@
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
 ![Runs on Windows and Docker](https://img.shields.io/badge/runs%20on-Windows%20%7C%20Docker-lightgrey)
 
-[Quick start](#quick-start) · [Features](#features) · [Services](#services-for-every-feature) · [Setup guide](SETUP.md) · [Reference manual](docs/REFERENCE.md) · [Client apps](#client-apps)
+[Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features) · [Services](#services-for-every-feature) · [Setup guide](SETUP.md) · [Reference manual](docs/REFERENCE.md) · [Client apps](#client-apps)
 
 </div>
 
@@ -25,6 +25,36 @@ Around the agents, Agentic is a complete AI workspace for people. It has a chat 
 Agentic works with any OpenAI-compatible model provider, such as OpenWebUI, LiteLLM, vLLM, llama.cpp or a hosted API, and optionally with your own local GPU servers. Each request is routed by purpose and price, and falls back to another provider when one fails. Cloud usage is paid from a wallet with a ledger, so autonomous work stays within the limits you set.
 
 The server is one self-contained executable with an embedded web app and a SQLite database. There is no separate web server, database server or front-end build to run.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/chat.png" alt="Chat: any model, with web search, tools, pictures, music, voice and the code interpreter in the message box" width="100%"><br>
+  <sub><b>Chat</b>: every model and custom model. The message box has web search, tools, pictures, video, music, markets, voice and the code interpreter.</sub>
+</p>
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/overview.png" alt="Overview dashboard with agents, tasks, AI calls, local model slots and cloud spend"><br>
+      <sub><b>Overview</b>: agents alive, work done, AI calls, local model slots and cloud spend against the daily cap.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/agents.png" alt="Agents list with state, queue, subagents, owner and balance"><br>
+      <sub><b>Agents</b>: a team of 25, each with its own queue, subagents, models and wallet.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/global-task.png" alt="New global task form: name, request, priority, purpose and which agents may take part"><br>
+      <sub><b>Global tasks</b>: describe a goal, and the coordinator plans which agents do which part.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/global-task-review.png" alt="Global task options: deadline, plan approval, run settings and review by a manager agent"><br>
+      <sub><b>Review and control</b>: plan approval, deadlines, automatic tool approval, and a reviewer agent that checks the result against the expected outcome.</sub>
+    </td>
+  </tr>
+</table>
 
 ## Features
 
