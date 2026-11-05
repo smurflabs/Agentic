@@ -9,9 +9,9 @@ The client apps connect to this server:
 | Repository | What it is |
 |---|---|
 | **Agentic** (this one) | The server: agents, the web app (Chat, dashboards), the API |
-| **Agentic_CLI** | A coding agent in your terminal |
-| **Agentic_Client** | The desktop app (Windows, Linux) |
-| **Agentic_VSCODE** | The VS Code extension |
+| **Agentic_cli** | A coding agent in your terminal |
+| **Agentic_desktop** | The desktop app (Windows, Linux) |
+| **Agentic_vscode** | The VS Code extension |
 
 ## 1. What you need
 
@@ -255,9 +255,9 @@ The server can hand out the CLI, the desktop app and the VS Code extension. Inst
 
    ```
    <folder>\Agentic
-   <folder>\Agentic_CLI
-   <folder>\Agentic_Client
-   <folder>\Agentic_VSCODE
+   <folder>\Agentic_cli
+   <folder>\Agentic_desktop
+   <folder>\Agentic_vscode
    ```
 
 2. Install Node.js 20 or later for the VS Code package. `tools\node\node.exe` is used when it exists, otherwise `node` on `PATH`.

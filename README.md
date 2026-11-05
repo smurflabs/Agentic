@@ -137,9 +137,9 @@ Open <http://127.0.0.1:8080> and sign in as `admin` with the password printed on
 
 | App | Repository | What it does |
 |---|---|---|
-| **Agentic CLI** | [Agentic_CLI](https://github.com/smurflabs/Agentic_CLI) | A coding agent in your terminal: the tools run on your machine, the models on your server. |
-| **Agentic Desktop** | [Agentic_Client](https://github.com/smurflabs/Agentic_Client) | The web app in a window of its own on Windows and Linux. It adds local MCP servers, Claude Code skills, and file and command tools that ask for approval. |
-| **Agentic for VS Code** | [Agentic_VSCODE](https://github.com/smurflabs/Agentic_VSCODE) | Chat inside VS Code, with tools that read, edit and run code in your workspace. |
+| **Agentic CLI** | [Agentic_cli](https://github.com/smurflabs/Agentic_cli) | A coding agent in your terminal: the tools run on your machine, the models on your server. |
+| **Agentic Desktop** | [Agentic_desktop](https://github.com/smurflabs/Agentic_desktop) | The web app in a window of its own on Windows and Linux. It adds local MCP servers, Claude Code skills, and file and command tools that ask for approval. |
+| **Agentic for VS Code** | [Agentic_vscode](https://github.com/smurflabs/Agentic_vscode) | Chat inside VS Code, with tools that read, edit and run code in your workspace. |
 
 Every client signs in with a personal API key. In the web app, open the user menu and choose **API key**. Once an administrator publishes the clients from the server (`tools/publish-clients.ps1`), people download them from **Apps & updates**, and installed copies update themselves.
 

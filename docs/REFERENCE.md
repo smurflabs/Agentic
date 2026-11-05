@@ -18,7 +18,7 @@ No IIS, ASP.NET, Kestrel, Node.js, Docker or separate web server is required.
 
 > **Isolated but collaborative.** Each agent has private state and its own permissions. Agents can ask each other for help, delegate work and return results, but only through the host-controlled, permissioned, persistent, audited message system. No agent can read another agent's memory, tasks, credentials or runtime.
 
-**Setting it up:** [SETUP.md](../SETUP.md) walks through building, configuring and running the server, step by step, on Windows or in Docker. The client apps live in their own repositories: **Agentic_CLI** (terminal), **Agentic_Client** (desktop app) and **Agentic_VSCODE** (VS Code extension).
+**Setting it up:** [SETUP.md](../SETUP.md) walks through building, configuring and running the server, step by step, on Windows or in Docker. The client apps live in their own repositories: **Agentic_cli** (terminal), **Agentic_desktop** (desktop app) and **Agentic_vscode** (VS Code extension).
 
 ---
 
@@ -1268,7 +1268,7 @@ Usage (user, endpoint, model, routed model, route, tokens, duration, errors) is 
 
 ### Desktop app (client tools)
 
-The Agentic desktop app (`Agentic_Client`) shows this web app through a local proxy that adds the user's API key, and gives Chat tools that run on the user's own computer: their Claude Code skills and slash commands, local MCP servers, and file and command tools with approval prompts.
+The Agentic desktop app (`Agentic_desktop`) shows this web app through a local proxy that adds the user's API key, and gives Chat tools that run on the user's own computer: their Claude Code skills and slash commands, local MCP servers, and file and command tools with approval prompts.
 
 The protocol behind this is generic. A Chat message may include:
 - `clientTools`: OpenAI function definitions.

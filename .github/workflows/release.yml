@@ -1,0 +1,53 @@
+# Publishes a GitHub release when a version tag (v2.0.24, ...) is pushed. The release notes are the annotated tag's
+# message, and the release carries the server for Windows (zip) and Linux (tar.gz) with their SHA-256 sums.
+# The Docker image for the same tag is published by docker.yml.
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check the version
+        id: version
+        run: |
+          git fetch --force --tags
+          project=$(grep -oPm1 '(?<=<Version>)[^<]+' src/Agentic/Agentic.vbproj)
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$project" != "$tag" ]; then echo "Tag $GITHUB_REF_NAME does not match <Version> $project in Agentic.vbproj"; exit 1; fi
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build Windows and Linux
+        run: |
+          v="${{ steps.version.outputs.version }}"
+          for rid in win-x64 linux-x64; do
+            dotnet publish src/Agentic/Agentic.vbproj -c Release -r "$rid" -o "out/$rid" -nologo
+            cp LICENSE README.md SETUP.md "out/$rid/"
+          done
+          (cd out/win-x64 && zip -q "../../Agentic-$v-win-x64.zip" Agentic.exe appsettings.json LICENSE README.md SETUP.md)
+          chmod +x out/linux-x64/Agentic
+          tar -C out/linux-x64 -czf "Agentic-$v-linux-x64.tar.gz" Agentic appsettings.json LICENSE README.md SETUP.md
+          sha256sum "Agentic-$v-win-x64.zip" "Agentic-$v-linux-x64.tar.gz" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ steps.version.outputs.version }}"
+          gh release create "$GITHUB_REF_NAME" "Agentic-$v-win-x64.zip" "Agentic-$v-linux-x64.tar.gz" SHA256SUMS.txt \
+            --title "Agentic $v" --notes-from-tag --verify-tag

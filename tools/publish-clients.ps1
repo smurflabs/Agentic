@@ -32,11 +32,11 @@ param(
     [string]$UpdatesDir = (Join-Path (Split-Path $PSScriptRoot -Parent) 'publish\updates'),
     [ValidateSet('cli', 'desktop', 'vscode')][string[]]$Apps = @('cli', 'desktop', 'vscode'),
     [ValidateSet('win-x64', 'win-arm64', 'linux-x64', 'linux-arm64', 'osx-x64', 'osx-arm64')][string[]]$Platforms = @('win-x64', 'linux-x64'),
-    # The client repositories are expected next to this one (..\Agentic_CLI, ..\Agentic_Client, ..\Agentic_VSCODE).
-    [string]$CliProject = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Agentic_CLI\AgenticCli.vbproj'),
-    [string]$DesktopProject = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Agentic_Client\AgenticClient.vbproj'),
+    # The client repositories are expected next to this one (..\Agentic_cli, ..\Agentic_desktop, ..\Agentic_vscode).
+    [string]$CliProject = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Agentic_cli\AgenticCli.vbproj'),
+    [string]$DesktopProject = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Agentic_desktop\AgenticClient.vbproj'),
     # The VS Code extension's folder (package.json); one .vsix for every platform, version from its package.json.
-    [string]$VsCodeProject = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Agentic_VSCODE'),
+    [string]$VsCodeProject = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Agentic_vscode'),
     # Node 20 or later for vsce (it needs the File global): the copy in tools\node, else node on PATH.
     [string]$NodeExe = $(if (Test-Path (Join-Path $PSScriptRoot 'node\node.exe')) { Join-Path $PSScriptRoot 'node\node.exe' } else { 'node' }),
     [string]$Notes,
