@@ -589,7 +589,7 @@ Namespace Configuration
     End Class
 
     ''' <summary>
-    ''' Songs from Suno through the Suno API wrapper (C:\Users\Administrator\Desktop\suno\server.py, the SunoAPI scheduled task):
+    ''' Songs from Suno through the Suno API wrapper (github.com/smurflabs/Agentic_suno, server.py):
     ''' the Music tab - simple (a description) or custom (lyrics, style, title) songs, instrumentals, AI-written lyrics. Every
     ''' song uses the Suno account the wrapper is signed in to (its credits). Without BaseUrl the tab is off.
     ''' </summary>

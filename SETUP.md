@@ -204,9 +204,9 @@ Each one is off, or only partly works, until you configure it:
 | Feature | Settings | Secret |
 |---|---|---|
 | Image and video generation in Chat | `ImageGeneration` / `VideoGeneration`: `BaseUrl`, `Model` | `AGENTIC_ImageGeneration__ApiKey`, `AGENTIC_VideoGeneration__ApiKey` |
-| Speech (Read aloud, Dictation, Audio tab) | `TextToSpeech.BaseUrl`: an XTTS-v2 server | Audio → Settings, or `AGENTIC_TextToSpeech__ApiKey` |
-| Images tab | `StableDiffusion.BaseUrl`: a Stable Diffusion 1.5 API server | Images → Settings, or `AGENTIC_StableDiffusion__ApiKey` |
-| Music tab | `Music.BaseUrl`: a Suno API wrapper | Music → Settings, or `AGENTIC_Music__ApiKey` |
+| Speech (Read aloud, Dictation, Audio tab) | `TextToSpeech.BaseUrl`: the XTTS-v2 server [Agentic_xtts](https://github.com/smurflabs/Agentic_xtts) | Audio → Settings, or `AGENTIC_TextToSpeech__ApiKey` |
+| Images tab | `StableDiffusion.BaseUrl`: the Stable Diffusion 1.5 server [Agentic_sdimages](https://github.com/smurflabs/Agentic_sdimages) | Images → Settings, or `AGENTIC_StableDiffusion__ApiKey` |
+| Music tab | `Music.BaseUrl`: the Suno API server [Agentic_suno](https://github.com/smurflabs/Agentic_suno) | Music → Settings, or `AGENTIC_Music__ApiKey` |
 | Web search | `WebSearch`: Brave (key), Bing (no key), SearXNG (`UrlTemplate`) | `AGENTIC_WebSearch__BraveApiKey` |
 | Knowledge bases (RAG) | `Rag.EmbeddingModel`: an embedding model on your provider | (none) |
 | Deposits (BTCPay) | `Payments`: `BtcPayUrl`, `StoreId` | `AGENTIC_Payments__ApiKey` |
