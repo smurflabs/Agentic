@@ -543,7 +543,7 @@ Web search is built in rather than an MCP server. Agents with the `search_web` t
 
 1. **Brave**: the Brave Search API, when `BraveApiKey` is set.
 2. **Bing**: Bing's results as RSS; no key needed. News searches use Bing News, limited to the past day, week or month.
-3. **SearXNG**: your instance's JSON API (`UrlTemplate`, then the fallback `Endpoints`).
+3. **SearXNG**: your [SearXNG](https://github.com/searxng/searxng) instance's JSON API (`UrlTemplate`, then the fallback `Endpoints`).
 
 ```jsonc
 "WebSearch": {
@@ -577,7 +577,7 @@ Web search is built in rather than an MCP server. Agents with the `search_web` t
 
   | Id | What it is | Granted to |
   |---|---|---|
-  | `code-exec` | Open Terminal on 192.168.1.20: Linux shell and file tools | ProcessingAgent |
+  | `code-exec` | [Open Terminal](https://github.com/open-webui/open-terminal) on 192.168.1.20 (behind an authenticating proxy): Linux shell and file tools | ProcessingAgent |
   | `storage` | Built-in shared folder | all agents |
   | `shell` | Built-in PowerShell/cmd on the Agentic host; each command needs approval in the Inbox | ProcessingAgent |
   | `code-review` | Built-in automated code review | Manager, Analysis, Processing |

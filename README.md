@@ -10,7 +10,7 @@
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
 ![Runs on Windows and Docker](https://img.shields.io/badge/runs%20on-Windows%20%7C%20Docker-lightgrey)
 
-[Quick start](#quick-start) · [Features](#features) · [Setup guide](SETUP.md) · [Reference manual](docs/REFERENCE.md) · [Client apps](#client-apps)
+[Quick start](#quick-start) · [Features](#features) · [Services](#services-for-every-feature) · [Setup guide](SETUP.md) · [Reference manual](docs/REFERENCE.md) · [Client apps](#client-apps)
 
 </div>
 
@@ -80,7 +80,7 @@ The server is one self-contained executable with an embedded web app and a SQLit
   - artifacts with shareable links
 - **Pictures, video and speech:** image and video generation, reading answers aloud, and voice dictation.
 - **Live in every window.** An answer streams to every open browser tab, the desktop app and VS Code at once.
-- **Optional tabs:** Audio, Images and Music (powered by the [companion services](#companion-services)), plus Money (crypto and currencies), Stocks, Polymarket and News.
+- **Optional tabs:** Audio, Images and Music (powered by [Agentic's own services](#agentics-own-services)), plus Money (crypto and currencies), Stocks, Polymarket and News.
 
 ### Operations and security
 
@@ -142,17 +142,31 @@ Open <http://127.0.0.1:8080> and sign in as `admin` with the password printed on
 
 Each repository's **Releases** page has ready-to-run builds. Every client signs in with a personal API key: in the web app, open the user menu and choose **API key**. An administrator can also publish the clients from the server (`tools/publish-clients.ps1`). People then download them from **Apps & updates**, and installed copies update themselves.
 
-## Companion services
+## Services for every feature
 
-Speech, pictures and songs come from three small self-hosted servers, each in its own repository. They are optional: a tab whose server is not set up stays hidden.
+Agentic needs only an OpenAI-compatible model provider. To use every feature, also install the services below. Each one is optional: without it, the features it powers are off or hidden, and everything else keeps working.
 
-| Service | Repository | Powers | Setting |
+### Third-party services
+
+| Service | Repository | What it enables in Agentic | Setting |
 |---|---|---|---|
-| **Agentic XTTS**: Coqui XTTS-v2 text to speech, with voice cloning and streaming | [Agentic_xtts](https://github.com/smurflabs/Agentic_xtts) | Read aloud and Dictation mode in Chat, the Audio tab, voices in the CLI and the apps | `TextToSpeech.BaseUrl` |
+| **Open WebUI**: one OpenAI-compatible API in front of local and cloud models | [open-webui/open-webui](https://github.com/open-webui/open-webui) | The models for agents, Chat and the API, and speech to text for dictation | `AIProviders.OpenWebUI` |
+| **Open Terminal**: a sandboxed Linux computer with a shell, files and processes, run as a Docker container | [open-webui/open-terminal](https://github.com/open-webui/open-terminal) | Remote code execution: the `code-exec` tools for agents, the chat's code interpreter and Run buttons, the sandbox Files browser and app previews | `McpServers` â†’ `code-exec` |
+| **open-terminal-mcp-auth**: an authenticating proxy in front of Open Terminal's MCP endpoint | (your own deployment) | Bearer-token access to the sandbox; Agentic sends `MCP_CODE_EXEC_TOKEN` | `MCP_CODE_EXEC_TOKEN` |
+| **SearXNG**: a private metasearch engine | [searxng/searxng](https://github.com/searxng/searxng) | Web search for agents and Chat, and deep research, without a search API key | `WebSearch.UrlTemplate` |
+| **Crawl4AI**: an LLM-friendly web crawler and scraper | [unclecode/crawl4ai](https://github.com/unclecode/crawl4ai) | Reading and crawling whole websites as clean Markdown; it runs as a container on the sandbox host, next to Open Terminal | (on the sandbox host) |
+
+### Agentic's own services
+
+Speech, pictures and songs come from three small self-hosted servers, each in its own repository. A tab whose server is not set up stays hidden.
+
+| Service | Repository | What it enables in Agentic | Setting |
+|---|---|---|---|
+| **Agentic XTTS**: Coqui XTTS-v2 text to speech, with voice cloning and streaming | [Agentic_xtts](https://github.com/smurflabs/Agentic_xtts) | Read aloud and Dictation mode in Chat, the Audio tab, and voices in the CLI and the apps | `TextToSpeech.BaseUrl` |
 | **Agentic SD Images**: Stable Diffusion 1.5 with LoRAs, ControlNet, inpainting and hires fix | [Agentic_sdimages](https://github.com/smurflabs/Agentic_sdimages) | The Images tab and the chat's picture tool | `StableDiffusion.BaseUrl` |
 | **Agentic Suno**: songs and lyrics with your Suno account | [Agentic_suno](https://github.com/smurflabs/Agentic_suno) | The Music tab | `Music.BaseUrl` |
 
-Each server has its own API key. An administrator pastes it on the tab's **Settings** page, where it is kept in Agentic's encrypted vault and never reaches a browser. [SETUP.md](SETUP.md#other-services) lists the settings.
+Each of Agentic's own services has its own API key. An administrator pastes it on the tab's **Settings** page, where it is kept in Agentic's encrypted vault and never reaches a browser. [SETUP.md](SETUP.md#6-optional-tools-and-services) covers installing and connecting every service.
 
 ## How it works
 

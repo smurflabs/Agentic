@@ -18,6 +18,7 @@ The client apps connect to this server:
 - **Windows 10/11 or Windows Server 2019 or later, x64.** The server, its service mode and the scripts in `tools\` are built and tested on Windows. On Linux, use the Docker image (section 11).
 - **The [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** to build. The published `Agentic.exe` is self-contained, so the machine that only runs it does not need .NET.
 - **A model provider.** The server talks to an OpenAI-compatible API (`/chat/completions`, `/models`). The shipped entry is OpenWebUI (`AIProviders.OpenWebUI`), which can sit in front of llama.cpp, Ollama, vLLM or cloud providers. You need its base URL and an API key.
+- **For every feature** (section 6): [Open WebUI](https://github.com/open-webui/open-webui) as the model provider, [Open Terminal](https://github.com/open-webui/open-terminal) with an authenticating proxy for remote code execution, [SearXNG](https://github.com/searxng/searxng) for web search, [Crawl4AI](https://github.com/unclecode/crawl4ai) for crawling websites, and Agentic's own speech, image and music servers.
 - **Optional extras** (section 6): Node.js 20 or later and Google Chrome for the browser, diagram and reverse-engineering tools. Ghidra for reverse engineering. A Gitea instance. Self-hosted speech, image and music servers.
 
 ## 2. Build and test
@@ -127,7 +128,7 @@ Three shipped `McpServers[]` entries are **off** until you set up what they need
 
 | Id | Needs |
 |---|---|
-| `code-exec` | An Open Terminal MCP server (`Endpoint`) plus `MCP_CODE_EXEC_TOKEN` |
+| `code-exec` | An [Open Terminal](https://github.com/open-webui/open-terminal) MCP endpoint (`Endpoint`), usually behind an authenticating proxy, plus `MCP_CODE_EXEC_TOKEN` (section 6) |
 | `browser` | Node.js, `tools\playwright-mcp` (section 6), Chrome |
 | `rea` | Node.js, `tools\rea` (section 6), Ghidra |
 
@@ -164,6 +165,20 @@ sc.exe start Agentic
 A service has no console, so it cannot show the bootstrap password. Add your `Admin.Users` entry before you install it. Set the environment variables machine-wide (`setx /M`), because the service reads the machine environment.
 
 ## 6. Optional tools and services
+
+### Third-party services
+
+Install these to use every feature. Without one, only the features it powers are off.
+
+| Service | Repository | What it enables | How to connect it |
+|---|---|---|---|
+| **Open WebUI** | [open-webui/open-webui](https://github.com/open-webui/open-webui) | The model provider (any OpenAI-compatible API also works). Its speech-to-text handles dictation in the desktop app and Firefox | `AIProviders.OpenWebUI.BaseUrl` and its API key (section 4.1). Set up speech-to-text in Open WebUI's audio settings |
+| **Open Terminal** | [open-webui/open-terminal](https://github.com/open-webui/open-terminal) | Remote code execution in a sandbox container: the `code-exec` tools for agents, the chat's code interpreter and Run buttons, the sandbox Files browser and app previews | Run its Docker image on a separate machine and enable its MCP endpoint. Then set the `code-exec` entry's `Endpoint` and `"Enabled": true` |
+| **open-terminal-mcp-auth** | (your own deployment) | An authenticating proxy in front of Open Terminal's MCP endpoint, so only Agentic can use the sandbox | Point `code-exec`'s `Endpoint` at the proxy. Set `MCP_CODE_EXEC_TOKEN` on the Agentic machine to the proxy's token |
+| **SearXNG** | [searxng/searxng](https://github.com/searxng/searxng) | Web search and deep research without a search API key (Bing and Brave are the other choices) | Enable the JSON format in its `settings.yml` (`search.formats: [html, json]`), then set `WebSearch.UrlTemplate` to `http://<host>:8080/search?q={query}&format=json` |
+| **Crawl4AI** | [unclecode/crawl4ai](https://github.com/unclecode/crawl4ai) | Reading and crawling whole websites as clean Markdown | Run its Docker image (`unclecode/crawl4ai`) on the sandbox host, next to Open Terminal |
+
+The agent tools run code and commands in the Open Terminal container, so give it a machine or VM of its own. Keep its port reachable only from the Agentic server.
 
 ### Node.js tools (browser, diagrams, reverse engineering)
 
@@ -207,7 +222,7 @@ Each one is off, or only partly works, until you configure it:
 | Speech (Read aloud, Dictation, Audio tab) | `TextToSpeech.BaseUrl`: the XTTS-v2 server [Agentic_xtts](https://github.com/smurflabs/Agentic_xtts) | Audio → Settings, or `AGENTIC_TextToSpeech__ApiKey` |
 | Images tab | `StableDiffusion.BaseUrl`: the Stable Diffusion 1.5 server [Agentic_sdimages](https://github.com/smurflabs/Agentic_sdimages) | Images → Settings, or `AGENTIC_StableDiffusion__ApiKey` |
 | Music tab | `Music.BaseUrl`: the Suno API server [Agentic_suno](https://github.com/smurflabs/Agentic_suno) | Music → Settings, or `AGENTIC_Music__ApiKey` |
-| Web search | `WebSearch`: Brave (key), Bing (no key), SearXNG (`UrlTemplate`) | `AGENTIC_WebSearch__BraveApiKey` |
+| Web search | `WebSearch`: Brave (key), Bing (no key), [SearXNG](https://github.com/searxng/searxng) (`UrlTemplate`) | `AGENTIC_WebSearch__BraveApiKey` |
 | Knowledge bases (RAG) | `Rag.EmbeddingModel`: an embedding model on your provider | (none) |
 | Deposits (BTCPay) | `Payments`: `BtcPayUrl`, `StoreId` | `AGENTIC_Payments__ApiKey` |
 | Email for agents | `McpServers` → `email`, `Notifications.Email` | `EMAIL_PASSWORD`, `AGENTIC_SMTP_PASSWORD` |
