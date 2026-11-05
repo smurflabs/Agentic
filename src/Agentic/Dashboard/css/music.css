@@ -1,0 +1,68 @@
+/* Agentic console - the Music tab (music.js): Suno songs. Shares the Images tab's layout (.img-create, .img-side, .img-job …) and voice.css's .aud-status / .aud-meta. */
+
+.mus-mode { margin-bottom: 14px; }
+.mus-create .img-form label + label, .mus-create .img-form .mus-chips + label, .mus-create .img-form .mus-chips + .mus-chips { margin-top: 10px; }
+.mus-create textarea { font-size: 14.5px; line-height: 1.5; }
+#mus-lyrics { font-family: inherit; min-height: 260px; }
+.mus-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+.mus-chips > .muted { min-width: 44px; }
+.mus-chip { padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); font: inherit; font-size: 12px; color: var(--text-2); cursor: pointer; }
+.mus-chip:hover { border-color: var(--accent); color: var(--accent); }
+.mus-inst { flex-direction: row; align-items: flex-start; gap: 9px; margin-top: 12px; }
+.mus-inst > span { display: flex; flex-direction: column; gap: 2px; }
+.mus-ai { margin-top: 14px; padding: 12px; border-radius: 12px; background: var(--surface-2); }
+.mus-ai .img-num-row input { flex: 1; }
+.mus-model { margin-top: 14px; }
+.mus-model code { font-size: 11px; color: var(--muted); font-weight: 400; background: none; padding: 0; align-self: flex-start; }
+
+.mus-indeterminate { width: 35% !important; animation: mus-slide 1.4s ease-in-out infinite; }
+@keyframes mus-slide { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+.mus-clip { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.mus-clip .grow { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.mus-list { display: flex; flex-direction: column; gap: 6px; }
+.mus-song { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.mus-song.playing { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); background: color-mix(in srgb, var(--accent-soft) 40%, var(--surface)); }
+.mus-play { position: relative; flex: none; width: 56px; height: 56px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: none; cursor: pointer; }
+.mus-play .mus-cover { width: 100%; height: 100%; }
+.mus-play-ic { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 16px; background: rgba(0, 0, 0, .35); opacity: 0; transition: opacity .15s; }
+.mus-play:hover .mus-play-ic, .mus-song.playing .mus-play-ic { opacity: 1; }
+.mus-cover { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: var(--surface-3); }
+.mus-cover.none { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, #000), color-mix(in srgb, var(--accent) 25%, var(--surface-3))); color: #fff; font-size: 22px; font-weight: 700; }
+.mus-cover.small { width: 36px; height: 36px; font-size: 15px; border-radius: 8px; }
+.mus-cover.big { width: 160px; height: 160px; font-size: 54px; border-radius: 14px; flex: none; }
+.mus-song-main { flex: 1; min-width: 0; }
+.mus-song-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mus-song-main .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mus-song-acts { display: flex; gap: 2px; flex: none; }
+.mus-song-acts .btn svg { width: 14px; height: 14px; }
+.mus-song-acts .btn.on, .mus-star { color: var(--warn); }
+.mus-job .img-job-prompt { margin: 2px 0 8px; }
+.mus-job .mus-song { padding: 6px; }
+.mus-job .mus-play, .mus-job .mus-cover:not(.small) { width: 44px; height: 44px; }
+
+.mus-player { position: sticky; bottom: 12px; z-index: 20; display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: var(--shadow-lg); backdrop-filter: blur(8px); }
+#mus-now { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 32%; }
+#mus-now > span { display: flex; flex-direction: column; min-width: 0; }
+#mus-now b, #mus-now .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mus-player audio { flex: 1; min-width: 0; height: 36px; }
+
+.mus-details { display: flex; flex-direction: column; gap: 14px; }
+.mus-details-head { display: flex; gap: 16px; align-items: flex-start; }
+.mus-details-head .stack { flex: 1; min-width: 0; }
+.mus-lyrics { white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.55; max-height: 46vh; overflow-y: auto; padding: 12px; border-radius: 10px; background: var(--surface-2); margin: 6px 0 0; }
+
+.mus-suno { display: flex; flex-direction: column; }
+.mus-suno-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.mus-suno-row:last-child { border-bottom: 0; }
+.mus-suno-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+@media (max-width: 1100px) {
+  .mus-create .img-side { order: 0; }
+}
+@media (max-width: 640px) {
+  .mus-player { flex-wrap: wrap; bottom: 70px; }
+  #mus-now { max-width: 100%; flex: 1 1 100%; }
+  .mus-details-head { flex-direction: column; }
+}

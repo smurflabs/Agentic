@@ -1,0 +1,299 @@
+/* ================================================================ Agentic — mobile layout
+   Loaded only on narrow screens (index.html: media="(max-width: 900px)"), on top of app.css: the phone gets the same app
+   as the desktop — every page, every Chat control, the same colors and logos — arranged for one hand:
+   - a top bar with the logo, search, the inbox bell and the user menu
+   - the sidebar (every page) as a drawer, opened from the menu button or the Menu tab
+   - a bottom tab bar: Chat, Overview, Agents, Inbox, Menu
+   - single-column pages, tables that scroll sideways, dialogs and menus as bottom sheets
+   - the Chat page full height, its chat list as a drawer, the composer with every control on one line
+   js/mobile.js adds the parts CSS cannot do (drawer backdrop for chats, keyboard height, tab state). */
+
+:root {
+  --top-h: 56px;
+  --tab-h: 58px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  /* The visible height; js/mobile.js keeps --app-h equal to the visual viewport (it shrinks when the keyboard opens). */
+  --app-h: 100dvh;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+html, body { overscroll-behavior-x: none; }
+body { -webkit-tap-highlight-color: transparent; }
+/* iOS zooms into fields with text under 16px: keep every field at 16px on phones. */
+input, select, textarea { font-size: 16px; }
+.search input, .chat-search input, .mm-search input { font-size: 16px; }
+
+/* ---------------------------------------------------------------- top bar */
+.shell { min-height: var(--app-h); }
+.workspace { min-height: var(--app-h); }
+.topbar {
+  height: calc(var(--top-h) + var(--safe-t)); padding: var(--safe-t) calc(8px + var(--safe-r)) 0 calc(6px + var(--safe-l)); gap: 4px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+.menu-toggle { display: inline-flex; width: 40px; height: 40px; flex: none; }
+.menu-toggle svg { width: 22px; height: 22px; }
+.top-brand { display: flex; align-items: center; height: 40px; padding: 0 4px; flex: none; }
+.top-brand img { height: 26px; width: auto; display: block; filter: drop-shadow(0 0 8px rgba(58, 160, 255, .22)); }
+.top-brand:hover { text-decoration: none; }
+.crumbs, .search { display: none; }
+.top-actions { margin-left: auto; gap: 4px; }
+.top-actions .top-search { display: inline-flex; width: 40px; height: 40px; }
+.top-search svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+/* Global task: icon only (the label is in its tooltip and the command palette). */
+.top-actions .btn.primary { font-size: 0; gap: 0; width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 12px; }
+.top-actions .btn.primary .ic { width: 19px; height: 19px; }
+.top-actions .danger-solid { display: none; }
+.top-chip { padding: 0 10px; height: 34px; }
+/* The user menu button shows the first letter of the name (js/mobile.js sets data-initial). */
+#whoami {
+  width: 36px; height: 36px; padding: 0; border-radius: 50%; font-size: 0; justify-content: center; flex: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: 0;
+}
+#whoami::before { content: attr(data-initial); font-size: 15px; font-weight: 700; }
+
+/* User menu: a full-width sheet under the top bar. */
+#user-menu {
+  position: fixed; left: calc(8px + var(--safe-l)); right: calc(8px + var(--safe-r)); top: calc(var(--top-h) + var(--safe-t) + 6px);
+  min-width: 0; max-height: calc(var(--app-h) - var(--top-h) - var(--safe-t) - var(--tab-h) - var(--safe-b) - 20px); overflow: auto;
+  border-radius: 16px; padding: 6px; transform-origin: top right;
+}
+#user-menu button, #user-menu a.menu-link { padding: 11px 12px; font-size: 15px; white-space: normal; }
+#user-menu kbd { display: none; }
+.m-only { display: flex !important; }
+
+/* ---------------------------------------------------------------- the sidebar as a drawer */
+.sidebar {
+  width: min(304px, 86vw); flex-basis: auto; z-index: 70; height: var(--app-h);
+  padding-top: var(--safe-t); padding-left: var(--safe-l); padding-bottom: var(--safe-b);
+  box-shadow: none; visibility: hidden;
+  transition: transform .3s var(--ease-out), visibility 0s linear .3s, box-shadow .3s ease;
+}
+.sidebar.open { visibility: visible; box-shadow: 0 0 60px rgba(0, 0, 0, .45); transition: transform .3s var(--ease-out), visibility 0s, box-shadow .3s ease; }
+.nav-backdrop {
+  display: block; position: fixed; inset: 0; z-index: 65; background: rgba(5, 9, 20, .5); opacity: 0; pointer-events: none;
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); transition: opacity .25s ease;
+}
+.sidebar.open + .nav-backdrop { opacity: 1; pointer-events: auto; }
+.brand-lockup.side { padding: 18px 20px 10px; }
+.sidebar .brand-logo { height: 40px; }
+#nav { padding: 2px 12px 16px; -webkit-overflow-scrolling: touch; }
+#nav a { padding: 11px 12px; font-size: 15px; border-radius: 10px; }
+#nav a svg { width: 19px; height: 19px; }
+.nav-group { padding: 18px 12px 6px; }
+
+/* ---------------------------------------------------------------- bottom tab bar */
+.tabbar {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  height: calc(var(--tab-h) + var(--safe-b)); padding: 0 var(--safe-r) var(--safe-b) var(--safe-l);
+  background: color-mix(in srgb, var(--surface) 90%, transparent); -webkit-backdrop-filter: saturate(180%) blur(18px); backdrop-filter: saturate(180%) blur(18px);
+  border-top: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  transition: transform .25s var(--ease-out);
+}
+.tabbar a, .tabbar button {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: var(--muted); font: inherit; font-size: 10.5px; font-weight: 600; letter-spacing: .01em; background: none; border: 0; padding: 0; cursor: pointer;
+  text-decoration: none; -webkit-tap-highlight-color: transparent;
+}
+.tabbar svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s var(--ease-spring); }
+.tabbar a:hover { text-decoration: none; }
+.tabbar .active { color: var(--accent); }
+.tabbar .active svg { transform: translateY(-1px) scale(1.06); stroke-width: 2.1; }
+.tabbar .active::before {
+  content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2)); animation: indicator-in .3s var(--ease-out);
+}
+.tabbar a:active svg, .tabbar button:active svg { transform: scale(.88); }
+.tab-badge {
+  position: absolute; top: 6px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px; display: flex;
+  align-items: center; justify-content: center; background: var(--bad); color: #fff; font-size: 10.5px; font-weight: 700; box-shadow: 0 0 0 2px var(--surface);
+}
+.tab-badge.hidden { display: none; }
+/* While typing, the keyboard needs the room: the tab bar steps aside. */
+:root.kb-open .tabbar { transform: translateY(110%); }
+
+/* ---------------------------------------------------------------- pages */
+.main {
+  padding: 14px calc(14px + var(--safe-r)) calc(var(--tab-h) + var(--safe-b) + 28px) calc(14px + var(--safe-l));
+  max-width: none;
+}
+:root.kb-open .main { padding-bottom: 24px; }
+h1 { font-size: 21px; }
+h2 { font-size: 15.5px; }
+.page-head { gap: 10px; margin-bottom: 14px; }
+.page-head .title { width: 100%; }
+.page-head .subtitle { font-size: 13px; }
+.page-head .actions { margin-left: 0; width: 100%; gap: 6px; }
+.page-head .actions > .btn, .page-head .actions > a.btn { flex: 1 1 auto; justify-content: center; }
+.btn { min-height: 38px; }
+.btn.small { min-height: 34px; }
+.btn.xs { min-height: 30px; }
+.btn.icon { min-width: 38px; }
+
+.grid { gap: 10px; }
+.grid.kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.two, .grid.three, .grid.side, .grid.four { grid-template-columns: minmax(0, 1fr); }
+.card + .card { margin-top: 12px; }
+.card-head { padding: 11px 14px; min-height: 46px; gap: 8px; }
+.card-head h2 { font-size: 14.5px; }
+.card-head .actions { margin-left: 0; }
+.card-body { padding: 13px 14px; }
+.kpi { padding: 13px 14px; }
+.kpi .value { font-size: 23px; }
+.section { margin-top: 12px; }
+
+/* Data tables (core.js table()): one card per row. The first column is the title; every other cell is a
+   "label  value" line (data-label holds its column name). The row checkbox sits at the top right. */
+.data-table table, .data-table tbody, .data-table tr, .data-table td { display: block; width: auto; }
+.data-table thead { display: none; }
+.data-table tr { position: relative; padding: 11px 14px; border-bottom: 1px solid var(--border); background: none; }
+.data-table tbody tr:last-child { border-bottom: 0; }
+.data-table tr:hover td { background: none; }
+.data-table tr.selected { background: var(--accent-soft); }
+.data-table td { padding: 4px 0 !important; border: 0 !important; text-align: right; min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+/* The label floats left; everything in the cell stays together on the right. */
+.data-table td::before {
+  content: attr(data-label); float: left; margin: 1px 14px 0 0; max-width: 44%; text-align: left; white-space: normal;
+  color: var(--muted); font-size: 12px; font-weight: 600; line-height: 1.6;
+}
+.data-table td::after { content: ""; display: table; clear: both; }
+.data-table td .btn { margin-top: 2px; }
+.data-table td[data-label=""]::before { display: none; }
+.data-table td:empty { display: none; }
+.data-table td.chk { position: absolute; top: 9px; right: 10px; padding: 0 !important; }
+.data-table td:not(.chk):first-child, .data-table td.chk + td { display: block; text-align: left; font-size: 15px; padding-bottom: 6px !important; }
+.data-table td:not(.chk):first-child::before, .data-table td.chk + td::before { display: none; }
+.data-table td.chk + td { padding-right: 36px !important; }
+.data-table td.num { font-variant-numeric: tabular-nums; }
+/* Other tables (Markdown, previews) keep their columns and scroll sideways. */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.md-table-box, .answer .table-wrap, .answer-part .table-wrap { max-width: 100%; overflow-x: auto; }
+/* Inline code (paths, ids) wraps instead of pushing the page wider than the screen. */
+p code, li code, .small code, .muted code, .subtitle code, .cell-sub code, td code, .notice code { overflow-wrap: anywhere; word-break: break-word; }
+/* The agent topology keeps a readable size and scrolls sideways (zoomed out it would be unreadable); + and − zoom further. */
+.topo-stage { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.topo-svg { min-width: 680px; max-height: none; }
+
+/* Forms: one column, comfortable fields. */
+.form-grid, .check-grid { grid-template-columns: minmax(0, 1fr); }
+.form-grid .span2 { grid-column: auto; }
+input, select, textarea { padding-top: 9px; padding-bottom: 9px; }
+.repeat-row, .repeat-row.grant { grid-template-columns: minmax(0, 1fr); }
+.sticky-actions { bottom: calc(var(--tab-h) + var(--safe-b)); }
+
+/* Tabs scroll sideways; bigger touch targets. */
+.tabs { margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
+.tabs a { padding-top: 11px; padding-bottom: 11px; white-space: nowrap; }
+
+/* Wide layouts collapse to one column. */
+.editor, .file-browser { grid-template-columns: minmax(0, 1fr); }
+.agent-grid, .result-grid, .cm-grid { grid-template-columns: minmax(0, 1fr); }
+.hm-row { grid-template-columns: 64px repeat(24, minmax(5px, 1fr)); gap: 2px; }
+.hm-row > :first-child { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bl-row { grid-template-columns: minmax(70px, 38%) 1fr auto; }
+.chart svg { max-width: 100%; }
+pre { max-width: 100%; overflow-x: auto; }
+
+/* ---------------------------------------------------------------- dialogs, palette, toasts, tooltips */
+/* Dialogs rise from the bottom as sheets. */
+.modal { align-items: flex-end; padding: 0; }
+.modal-card, .modal-card.wide, .modal-card.narrow, .modal-card.full, .modal-card.ins {
+  width: 100%; max-height: calc(var(--app-h) - var(--safe-t) - 12px); border-radius: 18px 18px 0 0; display: flex; flex-direction: column;
+  animation: sheet-in .32s var(--ease-out); border-bottom: 0;
+}
+.modal.closing .modal-card { animation: sheet-out .2s ease-in forwards; }
+.modal-head { padding: 12px 16px; position: relative; flex: none; }
+.modal-head::before { content: ""; position: absolute; top: 6px; left: 50%; width: 38px; height: 4px; margin-left: -19px; border-radius: 4px; background: var(--border-strong); }
+.modal-body, .modal-card.full .modal-body { padding: 16px; max-height: none; flex: 1 1 auto; overflow: auto; -webkit-overflow-scrolling: touch; }
+.modal-actions { padding: 12px 16px calc(12px + var(--safe-b)); border-radius: 0; flex-wrap: wrap; flex: none; }
+.modal-actions .btn { flex: 1 1 auto; justify-content: center; }
+@keyframes sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+
+.palette { padding: calc(var(--safe-t) + 10px) 10px 10px; align-items: flex-start; }
+.palette-card { width: 100%; max-height: calc(var(--app-h) - var(--safe-t) - 20px); }
+.palette-foot { display: none; }
+
+/* Toasts drop in under the top bar: at the bottom they covered the tab bar and the Chat composer's controls. */
+.toasts { left: 12px; right: 12px; top: calc(var(--top-h) + var(--safe-t) + 8px); bottom: auto; align-items: stretch; }
+.toast { width: auto; animation-name: toast-drop; }
+.toast.leaving { animation-name: toast-lift; }
+@keyframes toast-drop { from { opacity: 0; transform: translateY(-14px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes toast-lift { to { opacity: 0; transform: translateY(-10px) scale(.97); } }
+/* Tooltips need a mouse; on touch screens a tap would leave them stuck. */
+@media (hover: none) { .tip { display: none !important; } }
+
+/* Menus never run off the screen. */
+.menu { max-width: calc(100vw - 16px); }
+
+/* Login */
+.login { padding: calc(var(--safe-t) + 16px) 16px calc(var(--safe-b) + 16px); }
+.login-card { width: min(420px, 100%); padding: 26px 22px; }
+.login-brand .brand-logo { height: 52px; }
+
+/* ---------------------------------------------------------------- Chat */
+.main:has(> .chat-app), :root.kb-open .main:has(> .chat-app) { padding: 0; }
+.chat-app, .chat-app.side-closed {
+  grid-template-columns: minmax(0, 1fr); height: calc(var(--app-h) - var(--top-h) - var(--safe-t) - var(--tab-h) - var(--safe-b));
+}
+:root.kb-open .chat-app { height: calc(var(--app-h) - var(--top-h) - var(--safe-t)); }
+/* The chat list is a drawer over the conversation (js/mobile.js closes it after choosing a chat). */
+.chat-side, .chat-app:not(.side-closed) .chat-side {
+  position: absolute; z-index: 30; left: 0; top: 0; bottom: 0; width: min(316px, 88vw); box-shadow: 0 0 50px rgba(0, 0, 0, .4);
+  transform: none; transition: transform .3s var(--ease-out), visibility 0s; border-right: 1px solid var(--border); visibility: visible;
+}
+.chat-app.side-closed .chat-side { transform: translateX(-104%); visibility: hidden; box-shadow: none; transition: transform .3s var(--ease-out), visibility 0s linear .3s; }
+.chat-app::after {
+  content: ""; position: absolute; inset: 0; z-index: 29; background: rgba(5, 9, 20, .45); opacity: 0; pointer-events: none; transition: opacity .25s ease;
+}
+.chat-app:not(.side-closed)::after { opacity: 1; pointer-events: auto; }
+.chat-side-top { padding: 12px; }
+.chat-item { padding-top: 10px; padding-bottom: 10px; }
+
+.chat-top { padding: 6px 8px; gap: 2px; min-height: 50px; }
+.chat-top .btn.icon { width: 38px; height: 38px; }
+.model-picker { flex: 0 1 auto; min-width: 0; }
+.model-btn { padding: 6px 8px; font-size: 14.5px; max-width: min(46vw, 100%); }
+/* Only icons here (no title): they keep their room and the model's name gives way ("Claude Op…"), instead of the last
+   icon sliding past the edge and the page scrolling sideways. */
+.chat-head { gap: 0; min-width: 0; flex-shrink: 0; }
+.chat-head .chat-title { display: none; }
+.model-menu { position: fixed; left: 8px; right: 8px; top: calc(var(--top-h) + var(--safe-t) + 54px); width: auto; max-height: 64vh; }
+.mm-list { max-height: calc(64vh - 52px); }
+.mm-item .cell-sub { max-width: 70vw; }
+
+.chat-thread { padding: 14px 12px 20px; gap: 18px; }
+.msg.assistant { grid-template-columns: 26px minmax(0, 1fr); gap: 9px; }
+.msg .avatar { width: 26px; height: 26px; }
+.bubble-u { max-width: 88%; font-size: 15px; }
+.answer, .answer-part { font-size: 15px; }
+.msg-actions { flex-wrap: wrap; }
+.chat-welcome { padding-top: 5vh; padding-left: 12px; padding-right: 12px; }
+.chat-welcome h2 { font-size: 23px; }
+.welcome-logo img { width: min(200px, 62vw); }
+.to-bottom { bottom: 130px; }
+
+.composer-wrap { padding: 0 8px 8px; }
+.composer { border-radius: 18px; padding: 8px 8px 6px 12px; }
+.composer textarea { font-size: 16px; max-height: 32vh; }
+.composer-hint { display: none; }
+/* One line of controls; if a phone is too narrow even for icons, the row scrolls instead of hiding a button. */
+.composer-bar { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.composer-bar::-webkit-scrollbar { display: none; }
+.ask-pop, .appr-pop { left: 8px; right: 8px; width: auto; max-height: 60vh; overflow: auto; }
+/* Menus that open from the row of controls (reasoning effort, permission mode, tools, and the desktop app's Skills and
+   This PC) sit above the whole composer, as wide as it. The row scrolls sideways and a scrolling box clips whatever is
+   positioned inside it, so these are positioned against the composer instead. js/mobile.js measures --composer-room. */
+.composer { position: relative; }
+.composer-bar .combo, .composer-bar .tools-menu-wrap { position: static; }
+.composer-bar .combo-menu, .composer-bar .tools-menu {
+  left: 0; right: 0; top: auto; bottom: calc(100% + 8px); width: auto; max-width: none;
+  max-height: var(--composer-room, 50vh); overflow: auto; transform-origin: bottom center;
+}
+.sel-pop { max-width: calc(100vw - 24px); }
+
+/* No double-tap zoom delay on controls; the page behind an open drawer stays put. */
+a, button, .btn, label, summary, .chip-toggle { touch-action: manipulation; }
+:root.drawer-open body { overflow: hidden; }

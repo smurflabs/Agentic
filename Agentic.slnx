@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/EchoMcpServer/EchoMcpServer.vbproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Agentic/Agentic.vbproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Agentic.Tests/Agentic.Tests.vbproj" />
+  </Folder>
+</Solution>

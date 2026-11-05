@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Agentic">
+  <title>Agentic Console</title>
+  <link rel="apple-touch-icon" href="/assets/img/logo.png">
+  <link rel="icon" href="/assets/img/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="/assets/css/app.css">
+  <link rel="stylesheet" href="/assets/css/chatnav.css">
+  <link rel="stylesheet" href="/assets/css/voice.css">
+  <link rel="stylesheet" href="/assets/css/images.css">
+  <link rel="stylesheet" href="/assets/css/music.css">
+  <link rel="stylesheet" href="/assets/css/money.css">
+  <!-- Phones and narrow windows: the same app with a mobile layout (drawer, bottom tabs, full-screen sheets). -->
+  <link rel="stylesheet" href="/assets/css/mobile.css" media="(max-width: 900px)">
+  <script src="/assets/js/core.js" defer></script>
+  <script src="/assets/js/keys.js" defer></script>
+  <script src="/assets/js/views.js" defer></script>
+  <script src="/assets/js/topology.js" defer></script>
+  <script src="/assets/js/agent.js" defer></script>
+  <script src="/assets/js/autonomy.js" defer></script>
+  <script src="/assets/js/learning.js" defer></script>
+  <script src="/assets/js/editor.js" defer></script>
+  <script src="/assets/js/users.js" defer></script>
+  <script src="/assets/js/modelcontrol.js" defer></script>
+  <script src="/assets/js/global.js" defer></script>
+  <script src="/assets/js/results.js" defer></script>
+  <script src="/assets/js/insights.js" defer></script>
+  <script src="/assets/js/usage.js" defer></script>
+  <script src="/assets/js/platform.js" defer></script>
+  <script src="/assets/js/accounts.js" defer></script>
+  <script src="/assets/js/mymodels.js" defer></script>
+  <script src="/assets/js/mymcp.js" defer></script>
+  <script src="/assets/vendor/katex/katex.min.js" defer></script>
+  <script src="/assets/js/markdown.js" defer></script>
+  <script src="/assets/js/chattools.js" defer></script>
+  <script src="/assets/js/chat.js" defer></script>
+  <script src="/assets/js/chatx.js" defer></script>
+  <script src="/assets/js/chatcmds.js" defer></script>
+  <script src="/assets/js/chatextra.js" defer></script>
+  <script src="/assets/js/chatmore.js" defer></script>
+  <script src="/assets/js/chatrun.js" defer></script>
+  <script src="/assets/js/artifacts.js" defer></script>
+  <script src="/assets/js/chatmulti.js" defer></script>
+  <script src="/assets/js/chatagents.js" defer></script>
+  <script src="/assets/js/chatgaps.js" defer></script>
+  <script src="/assets/js/chatnav.js" defer></script>
+  <script src="/assets/js/voice.js" defer></script>
+  <script src="/assets/js/audio.js" defer></script>
+  <script src="/assets/js/images.js" defer></script>
+  <script src="/assets/js/music.js" defer></script>
+  <script src="/assets/js/money.js" defer></script>
+  <script src="/assets/js/stocks.js" defer></script>
+  <script src="/assets/js/polymarket.js" defer></script>
+  <script src="/assets/js/news.js" defer></script>
+  <script src="/assets/js/mobile.js" defer></script>
+</head>
+<body>
+  <div id="progress" class="progress" aria-hidden="true"><span></span></div>
+  <div id="login" class="login hidden">
+    <form id="login-form" class="login-card" autocomplete="on">
+      <div class="brand-lockup login-brand"><img class="brand-logo" src="/assets/img/logo.png" alt="Agentic" width="604" height="160"><div class="muted small">Operations console</div></div>
+      <label>Username<input name="username" autocomplete="username" required></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="btn primary wide">Sign in</button>
+      <p id="login-error" class="error-text" role="alert"></p>
+    </form>
+  </div>
+
+  <div id="shell" class="shell hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-lockup side"><img class="brand-logo" src="/assets/img/logo.png" alt="Agentic" width="604" height="160"><div id="instance-name" class="brand-sub"></div></div>
+      <nav id="nav" aria-label="Main">
+        <div class="nav-group">Workspace</div>
+        <a href="/chat" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"/></svg>Chat</a>
+        <a href="/artifacts" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 14l5 3-5 3z"/></svg>Artifacts</a>
+        <a href="/audio" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2M7 8v8M11 4v16M15 7v10M19 10v4M21 12h0"/></svg>Audio</a>
+        <a href="/images" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6M15.5 9.5h.01"/></svg>Images</a>
+        <a href="/music" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3zM20 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3z"/></svg>Music</a>
+        <a href="/money" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 4 8-8M15 8h5v5M3 21h18"/></svg>Money</a>
+        <a href="/stocks" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4M7 17v4M5 7h4v10H5zM17 4v5M17 15v5M15 9h4v6h-4z"/></svg>Stocks</a>
+        <a href="/polymarket" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2M16 9l3-3 3 3"/></svg>Polymarket</a>
+        <a href="/news" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M7 9h7M7 12h7M7 15h4"/></svg>News</a>
+        <div class="nav-group">Monitor</div>
+        <a href="/" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg>Overview</a>
+        <a href="/operations" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 10.4V6h-2v7.6l5.2 3.1 1-1.7z"/></svg>Operations</a>
+        <a href="/console" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>Console</a>
+        <a href="/events" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Live events</a>
+        <div class="nav-group">Workforce</div>
+        <a href="/agents" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 5v2h16v-2c0-3-4-5-8-5z"/></svg>Agents</a>
+        <a href="/subagents" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h4v4H6zM14 3h4v4h-4zM10 17h4v4h-4zM8 7v4h8V7M12 11v6"/></svg>Subagents <span id="nav-subagents" class="pill info hidden"></span></a>
+        <a href="/learning" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5zM6 10.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.5M22 8v6"/></svg>Learning</a>
+        <a href="/global-tasks" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5zM2 13l10 5 10-5M2 18l10 5 10-5"/></svg>Global tasks <span id="nav-global" class="pill info hidden"></span></a>
+        <a href="/results" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 13l2 2 4-4"/></svg>Results <span id="nav-results" class="pill ok hidden"></span></a>
+        <a href="/tasks" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>Tasks</a>
+        <a href="/communications" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v11H8l-4 4z"/></svg>Communications</a>
+        <a href="/approvals" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12h-5l-3 4-3-4H4z"/></svg>Inbox <span id="nav-approvals" class="pill bad hidden"></span></a>
+        <div class="nav-group">Platform</div>
+        <a href="/models" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7zm0 2.3L5 8.2v7.6l7 3.9 7-3.9V8.2z"/></svg>Models &amp; access</a>
+        <a href="/model-square" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Model Square</a>
+        <a href="/finance" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 10h18M7 15h3"/></svg>Finance</a>
+        <a href="/balance" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h15a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H3zM3 7l11-4v4M16 14h.01"/></svg>Balance</a>
+        <a href="/my-models" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7a4 4 0 1 1-3.8 5.2L4 19.4V21h3v-2h2v-2h2l1.2-1.2A4 4 0 0 1 15 7zM16.5 9.5h.01"/></svg>My models</a>
+        <a href="/my-mcp" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v4M15 3v4M7 7h10v5a5 5 0 0 1-10 0zM12 17v4"/></svg>My MCP servers</a>
+        <a href="/custom-models" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M5 12H3M21 12h-2M7 7l-1.5-1.5M18.5 18.5 17 17M7 17l-1.5 1.5M18.5 5.5 17 7"/><circle cx="12" cy="12" r="4"/></svg>Custom models</a>
+        <a href="/mcp" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v4M15 3v4M7 7h10v5a5 5 0 0 1-10 0zM12 17v4"/></svg>MCP servers</a>
+        <a href="/sandbox" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v12H4zM4 7l2-3h12l2 3M9 12h6"/></svg>Sandbox</a>
+        <a href="/swagger" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4C5 4 6 9 3 12c3 3 2 8 5 8M16 4c3 0 2 5 5 8-3 3-2 8-5 8M10 15l4-6"/></svg>Swagger</a>
+        <a href="/updates" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>Apps &amp; updates</a>
+        <div class="nav-group">Administration</div>
+        <a href="/config" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm9 4-2.1-.7.5-2.2-1.9-1.1-1.6 1.6-2-.9L13.4 6h-2.8l-.5 2.1-2 .9-1.6-1.6-1.9 1.1.5 2.2L3 11.4v2.2l2.1.7-.5 2.2 1.9 1.1 1.6-1.6 2 .9.5 2.1h2.8l.5-2.1 2-.9 1.6 1.6 1.9-1.1-.5-2.2 2.1-.7z"/></svg>Configuration</a>
+        <a href="/users" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-7 9c0-3.3 3.1-5.5 7-5.5s7 2.2 7 5.5M17 11a3 3 0 1 0-1.5-5.6M22 20c0-2.4-1.7-4.2-4.2-4.9"/></svg>Users &amp; access</a>
+        <a href="/model-control" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10m4 0h2M4 17h2m4 0h10M16 4v6M8 14v6"/></svg>Model control</a>
+        <a href="/secrets" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v2"/></svg>Secrets</a>
+        <a href="/audit" data-nav><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h8"/></svg>Audit log</a>
+      </nav>
+      <div class="sidebar-foot">
+        <div id="conn" class="conn">connecting…</div>
+        <div class="muted small" id="version"></div>
+      </div>
+    </aside>
+    <div class="nav-backdrop" data-act="toggle-nav" aria-hidden="true"></div>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="btn icon ghost menu-toggle" data-act="toggle-nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <a href="/" data-nav class="top-brand" aria-label="Agentic home"><img src="/assets/img/logo.png" alt="Agentic" width="604" height="160"></a>
+        <div id="crumbs" class="crumbs"></div>
+        <form class="search" data-form="global-search" role="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7zm9 16-4.3-4.3"/></svg>
+          <input name="q" id="global-search" placeholder="Search agents, tasks, workflows…" autocomplete="off" aria-label="Search">
+          <button type="button" class="kbd-hint" data-act="open-palette" title="Command palette (Ctrl+K)"><kbd>Ctrl</kbd><kbd>K</kbd></button>
+        </form>
+        <div class="top-actions">
+          <button class="btn icon ghost top-search" data-act="open-palette" aria-label="Search and jump"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7zm9 16-4.3-4.3"/></svg></button>
+          <button class="btn primary small" data-act="new-global-task" title="Describe a goal; the system plans it, distributes it across agents and combines the results"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5zM2 13l10 5 10-5"/></svg>Global task</button>
+          <button type="button" class="top-chip top-usage" id="top-usage" data-act="open-usage" aria-label="Token usage" data-tip="Token usage: live graph of tokens used per user and model"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16"/><path d="m7 15 4-5 3 3 5-7"/></svg></button>
+          <a href="/approvals" data-nav class="top-chip" id="top-approvals" title="Pending approvals and questions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.9V4a1 1 0 0 0-2 0v1.1A6 6 0 0 0 6 11v5l-2 2v1h16v-1z"/></svg><span id="top-approvals-count">0</span></a>
+          <button class="btn danger-solid small" data-act="emergency-stop" title="Pause every agent and cancel all running work">Emergency stop</button>
+          <div class="user-menu">
+            <button class="btn ghost small" data-act="toggle-user-menu" id="whoami" aria-haspopup="true">admin</button>
+            <div class="menu hidden" id="user-menu" role="menu">
+              <button data-act="open-palette" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7zm9 16-4.3-4.3"/></svg>Command palette<span class="spacer"></span><span class="kbd-group" data-key-hint="app.palette"><kbd>Ctrl</kbd><kbd>K</kbd></span></button>
+              <button data-act="keys-open" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v10H3zM7 10h1M10 10h1M13 10h1M16 10h1M8 14h8"/></svg>Keyboard shortcuts<span class="spacer"></span><span class="kbd-group" data-key-hint="app.shortcuts"><kbd>Ctrl</kbd><kbd>/</kbd></span></button>
+              <button data-act="toggle-theme" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Toggle light / dark</button>
+              <button data-act="toggle-motion" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2-5 4-5 6 0s4 5 6 0 4-5 4-5"/></svg><span id="motion-label">Animations: auto (system)</span></button>
+              <hr>
+              <div class="menu-title" title="Sounds play only while this window is in the background">Sounds</div>
+              <button data-act="toggle-sound" data-sound="chatComplete" role="menuitemcheckbox" aria-checked="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Chat answer finished<span class="spacer"></span><span class="sound-state">On</span></button>
+              <button data-act="toggle-sound" data-sound="inputRequired" role="menuitemcheckbox" aria-checked="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Chat needs your input<span class="spacer"></span><span class="sound-state">On</span></button>
+              <button data-act="toggle-sound" data-sound="agentNeedsYou" role="menuitemcheckbox" aria-checked="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>An agent needs you<span class="spacer"></span><span class="sound-state">On</span></button>
+              <label class="sound-volume" title="Volume of every sound"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6"/></svg><span>Volume</span><input type="range" id="sound-volume" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="sound-vol-val">100%</span></label>
+              <button data-act="toggle-notify" role="menuitemcheckbox" aria-checked="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg>System notifications<span class="spacer"></span><span class="sound-state">Off</span></button>
+              <hr>
+              <a href="/balance" data-nav class="menu-link" id="menu-balance-link" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h15a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H3zM3 7l11-4v4M16 14h.01"/></svg>Balance<span class="menu-balance" id="menu-balance"></span></a>
+              <button data-act="change-password" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2"/></svg>Change password</button>
+              <button data-act="api-key" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 10a4 4 0 1 0-3.9 4H11l2 2h2v2h2v2h3v-3l-6.1-6.1"/></svg>API key</button>
+              <hr>
+              <button data-act="emergency-stop" role="menuitem" class="m-only danger-item"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8zM9 9l6 6M15 9l-6 6"/></svg>Emergency stop</button>
+              <a href="/?desktop=1" class="m-only menu-link" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v12H3zM8 20h8M12 16v4"/></svg>Desktop layout</a>
+              <a href="/?mobile=1" class="forced-only menu-link" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10v20H7zM11 18h2"/></svg>Mobile layout</a>
+              <button data-act="logout" role="menuitem"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"/></svg>Sign out</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main id="main" class="main" tabindex="-1"></main>
+    </div>
+
+    <!-- Phones: the main pages one tap away; Menu opens the sidebar with every page. -->
+    <nav class="tabbar" id="tabbar" aria-label="Quick navigation">
+      <a href="/chat" data-nav data-tab="/chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"/></svg><span>Chat</span></a>
+      <a href="/" data-nav data-tab="/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg><span>Overview</span></a>
+      <a href="/agents" data-nav data-tab="/agents"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 5v2h16v-2c0-3-4-5-8-5z"/></svg><span>Agents</span></a>
+      <a href="/approvals" data-nav data-tab="/approvals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12h-5l-3 4-3-4H4z"/></svg><span>Inbox</span><b class="tab-badge hidden" id="tab-approvals"></b></a>
+      <button type="button" data-act="toggle-nav" data-tab="menu" aria-label="All pages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></button>
+    </nav>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card" id="modal-card"></div></div>
+  <div id="palette" class="palette hidden" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="palette-card">
+      <div class="palette-input">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7zm9 16-4.3-4.3"/></svg>
+        <input id="palette-input" placeholder="Jump to a page or agent, or run a command…" autocomplete="off" spellcheck="false" aria-controls="palette-list" aria-label="Command">
+      </div>
+      <div id="palette-list" class="palette-list" role="listbox"></div>
+      <div class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+    </div>
+  </div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="tip" class="tip hidden" role="tooltip"></div>
+</body>
+</html>

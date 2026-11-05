@@ -1,0 +1,75 @@
+[
+  {
+    "id": "agentic/axiom",
+    "name": "Axiom",
+    "description": "Engineering and reasoning router: code to a codex model, debugging to a fast deepseek, hard reasoning/math to deepseek-pro, vision and long context to gemini, small talk to the free local model.",
+    "enabled": true,
+    "definition": {
+      "mode": "hybrid",
+      "classifierModel": "qwen3.8-flash-MAX",
+      "defaultModel": "dddai2/deepseek-v4-pro",
+      "defaultFallbacks": ["dddai2/claude-sonnet-5"],
+      "longContextTokens": 24000,
+      "routes": [
+        { "category": "coding",       "model": "dddai2/gpt-5.3-codex-spark", "fallbacks": ["dddai2/deepseek-v4-flash"] },
+        { "category": "debugging",    "model": "dddai2/deepseek-v4-flash",   "fallbacks": ["dddai2/deepseek-v4-pro"] },
+        { "category": "code_review",  "model": "dddai2/claude-sonnet-5",     "fallbacks": ["dddai2/deepseek-v4-pro"] },
+        { "category": "devops",       "model": "dddai2/deepseek-v4-flash" },
+        { "category": "data_sql",     "model": "dddai2/deepseek-v4-flash" },
+        { "category": "reasoning",    "model": "dddai2/deepseek-v4-pro" },
+        { "category": "math",         "model": "dddai2/deepseek-v4-pro" },
+        { "category": "vision",       "model": "yqy/gemini-3.8-flash" },
+        { "category": "long_context", "model": "yqy/gemini-3.8-flash" },
+        { "category": "conversation", "model": "qwen3.8-flash-MAX" }
+      ]
+    }
+  },
+  {
+    "id": "agentic/vesper",
+    "name": "Vesper",
+    "description": "Writing and communication router: prose/marketing/business to claude-sonnet, creative to claude-opus, cheap summaries to the local model, translation and research to gemini, vision to gemini, small talk to the local model.",
+    "enabled": true,
+    "definition": {
+      "mode": "hybrid",
+      "classifierModel": "qwen3.8-flash-MAX",
+      "defaultModel": "dddai2/claude-sonnet-5",
+      "defaultFallbacks": ["dddai2/deepseek-v4-pro"],
+      "longContextTokens": 24000,
+      "routes": [
+        { "category": "writing",       "model": "dddai2/claude-sonnet-5" },
+        { "category": "creative",      "model": "dddai2/claude-opus-5",   "fallbacks": ["dddai2/claude-sonnet-5"] },
+        { "category": "marketing",     "model": "dddai2/claude-sonnet-5" },
+        { "category": "business",      "model": "dddai2/claude-sonnet-5" },
+        { "category": "summarization", "model": "qwen3.8-flash-MAX",      "fallbacks": ["dddai2/deepseek-v4-flash"] },
+        { "category": "translation",   "model": "yqy/gemini-3.8-flash" },
+        { "category": "research",      "model": "yqy/gemini-3.8-flash" },
+        { "category": "vision",        "model": "yqy/gemini-3.8-flash" },
+        { "category": "conversation",  "model": "qwen3.8-flash-MAX" }
+      ]
+    }
+  },
+  {
+    "id": "agentic/zenith",
+    "name": "Zenith",
+    "description": "Premium frontier router: hard reasoning and review to claude-opus, code to a codex model, math to deepseek-pro, research/long context/vision to gemini, but small talk still on the free local model so chit-chat does not burn opus.",
+    "enabled": true,
+    "definition": {
+      "mode": "hybrid",
+      "classifierModel": "qwen3.8-flash-MAX",
+      "defaultModel": "dddai2/claude-opus-5",
+      "defaultFallbacks": ["dddai2/deepseek-v4-pro"],
+      "longContextTokens": 24000,
+      "routes": [
+        { "category": "reasoning",    "model": "dddai2/claude-opus-5",       "fallbacks": ["dddai2/deepseek-v4-pro"] },
+        { "category": "coding",       "model": "dddai2/gpt-5.3-codex-spark", "fallbacks": ["dddai2/deepseek-v4-pro"] },
+        { "category": "code_review",  "model": "dddai2/claude-opus-5",       "fallbacks": ["dddai2/claude-sonnet-5"] },
+        { "category": "math",         "model": "dddai2/deepseek-v4-pro" },
+        { "category": "creative",     "model": "dddai2/claude-opus-5" },
+        { "category": "research",     "model": "yqy/gemini-3.8-flash" },
+        { "category": "long_context", "model": "yqy/gemini-3.8-flash" },
+        { "category": "vision",       "model": "yqy/gemini-3.8-flash" },
+        { "category": "conversation", "model": "qwen3.8-flash-MAX" }
+      ]
+    }
+  }
+]

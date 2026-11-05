@@ -1,0 +1,197 @@
+/* Agentic console - the Money tab (money.js: prices and charts) and the News tab (news.js: articles from RSS feeds). */
+
+/* ---------------------------------------------------------------- Money */
+.mon { display: flex; flex-direction: column; gap: 14px; }
+.mon-section-title { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
+.mon-section-title h2 { font-size: 15px; margin: 0; }
+.mon-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
+.mon-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); overflow: hidden; grid-template-areas: "head head" "price price" "foot spark"; gap: 4px 8px; align-items: end;
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer;
+  box-shadow: var(--shadow-xs); transition: border-color var(--t-fast), background-color var(--t-fast), transform var(--t-fast); }
+.mon-card:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.mon-card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.mon-card-head { grid-area: head; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.mon-card-head .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mon-card-price { grid-area: price; font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; border-radius: 6px; }
+.mon-card-foot { grid-area: foot; display: flex; align-items: center; gap: 6px; }
+.mon-card-spark { grid-area: spark; width: 100%; max-width: 120px; height: 34px; justify-self: end; display: grid; place-items: center end; }
+.mon-spark { width: 100%; height: 34px; overflow: visible; }
+.mon-spark-line { fill: none; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.mon-spark.up .mon-spark-line { stroke: var(--ok); }
+.mon-spark.down .mon-spark-line { stroke: var(--bad); }
+.mon-spark-area { stroke: none; opacity: .14; }
+.mon-spark.up .mon-spark-area { fill: var(--ok); }
+.mon-spark.down .mon-spark-area { fill: var(--bad); }
+.mon-spark-empty { font-size: 11px; }
+
+.mon-chip { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 999px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; background: var(--surface-3); color: var(--text-2); }
+.mon-chip.mon-up { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
+.mon-chip.mon-down { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+td.mon-up, b.mon-up, span.mon-up { color: var(--ok); }
+td.mon-down, b.mon-down, span.mon-down { color: var(--bad); }
+
+@keyframes mon-flash-up { from { background: color-mix(in srgb, var(--ok) 30%, transparent); } to { background: transparent; } }
+@keyframes mon-flash-down { from { background: color-mix(in srgb, var(--bad) 30%, transparent); } to { background: transparent; } }
+.flash-up { animation: mon-flash-up 1.2s ease-out; }
+.flash-down { animation: mon-flash-down 1.2s ease-out; }
+
+.mon-main .card-body { display: flex; flex-direction: column; gap: 10px; }
+.mon-main-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.mon-main-title { font-size: 16px; font-weight: 700; }
+.mon-main-price { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+.mon-main-price > span:first-child { font-size: 30px; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.mon-ranges { flex-wrap: wrap; }
+
+.mon-chart { position: relative; width: 100%; min-height: 240px; user-select: none; }
+.mon-chart-empty { display: grid; place-items: center; min-height: 240px; color: var(--muted); font-size: 13px; text-align: center; padding: 0 20px; }
+.mon-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.mon-grid { stroke: var(--border); stroke-width: 1; shape-rendering: crispEdges; }
+.mon-axis { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.mon-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.mon-svg.up .mon-line { stroke: var(--ok); }
+.mon-svg.down .mon-line { stroke: var(--bad); }
+.mon-svg.up .mon-stop-top { stop-color: var(--ok); stop-opacity: .28; }
+.mon-svg.down .mon-stop-top { stop-color: var(--bad); stop-opacity: .28; }
+.mon-svg .mon-stop-bottom { stop-color: var(--surface); stop-opacity: 0; }
+.mon-last { stroke-width: 1; stroke-dasharray: 3 4; }
+.mon-svg.up .mon-last { stroke: var(--ok); }
+.mon-svg.down .mon-last { stroke: var(--bad); }
+.mon-svg.up .mon-last-tag, .mon-svg.up .mon-last-dot { fill: var(--ok); }
+.mon-svg.down .mon-last-tag, .mon-svg.down .mon-last-dot { fill: var(--bad); }
+.mon-last-text { fill: #fff; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mon-hit { fill: transparent; cursor: crosshair; }
+.mon-hover.hidden { display: none; }
+.mon-cross { stroke: var(--text-2); stroke-width: 1; stroke-dasharray: 2 3; }
+.mon-hover-dot { fill: var(--surface); stroke-width: 2.5; }
+.mon-svg.up .mon-hover-dot { stroke: var(--ok); }
+.mon-svg.down .mon-hover-dot { stroke: var(--bad); }
+.mon-tip { position: absolute; z-index: 2; pointer-events: none; display: flex; flex-direction: column; gap: 1px; padding: 6px 10px; border: 1px solid var(--border-strong);
+  border-radius: 8px; background: var(--surface); box-shadow: var(--shadow-md, 0 6px 20px rgba(0,0,0,.25)); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mon-tip b { font-size: 14px; }
+.mon-tip.hidden { display: none; }
+.mon-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.mon-stat { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); }
+.mon-stat b { font-variant-numeric: tabular-nums; }
+.mon-source { margin: 0; }
+.mon-table td.num, .mon-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.mon-table tr.clickable { cursor: pointer; }
+.mon-table tr.clickable:hover td { background: var(--surface-2); }
+
+/* ---------------------------------------------------------------- News */
+.tab-count { display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); font-size: 11px; font-weight: 600; }
+.news-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.news-search { display: flex; align-items: center; gap: 6px; flex: 1 1 280px; max-width: 460px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); }
+.news-search input, .news-search input[type=search] { flex: 1; min-width: 0; border: 0; background: none; padding: 8px 0; outline: none; box-shadow: none; }
+.news-search .ic { width: 16px; height: 16px; color: var(--muted); }
+.news-fresh { padding: 6px 12px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.news-fresh.hidden { display: none; }
+.news-day { margin: 18px 0 8px; font-size: 13px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+.news-list > .news-day:first-child { margin-top: 0; }
+.news-group { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.news-item { display: flex; gap: 14px; padding: 12px 16px; border-top: 1px solid var(--border); }
+.news-item:first-child { border-top: 0; }
+.news-item:hover { background: var(--surface-2); }
+.news-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.news-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.news-src { padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; cursor: pointer; background: var(--surface-3); color: var(--text-2); }
+.news-src.cat-international { background: color-mix(in srgb, #3b82f6 18%, transparent); color: #60a5fa; }
+.news-src.cat-us { background: color-mix(in srgb, #ef4444 16%, transparent); color: #f87171; }
+.news-src.cat-agencies { background: color-mix(in srgb, #a855f7 18%, transparent); color: #c084fc; }
+.news-src.cat-investigative { background: color-mix(in srgb, #f59e0b 18%, transparent); color: #fbbf24; }
+.news-src.cat-business { background: color-mix(in srgb, #10b981 18%, transparent); color: #34d399; }
+.news-title { color: var(--text); font-size: 15px; font-weight: 650; line-height: 1.35; text-decoration: none; }
+.news-title:hover { color: var(--accent); text-decoration: underline; }
+.news-summary { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.news-pic { flex: none; width: 132px; height: 88px; border-radius: 8px; overflow: hidden; background: var(--surface-3); }
+.news-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.news-more { justify-content: center; margin-top: 14px; }
+.news-url { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.news-note { padding: 10px 16px; margin: 0; }
+@media (max-width: 700px) {
+  .news-pic { width: 84px; height: 64px; }
+  .mon-card-spark, .mon-spark { width: 90px; }
+  .mon-main-price > span:first-child { font-size: 24px; }
+}
+/* The watch list (administrators): Save sits clear of the fields above it. */
+.mon-watch-foot { margin-top: 16px; align-items: center; gap: 12px; }
+.mon-base { stroke: var(--text-2); stroke-width: 1; stroke-dasharray: 1 4; opacity: .8; }
+.mon-base-text { fill: var(--muted); font-size: 10.5px; }
+
+/* The Stocks tab (stocks.js) shares the cards, chart, stats and table above. The ticker lookup: a search box with its matches below it. */
+.stk-lookup { position: relative; display: flex; }
+.stk-lookup .news-search { max-width: 520px; }
+.stk-suggest { left: 0; right: auto; top: calc(100% + 4px); width: min(520px, 100%); max-height: 340px; overflow-y: auto; transform-origin: top left; }
+.stk-suggest .stk-hit { display: flex; align-items: baseline; gap: 10px; width: 100%; }
+.stk-suggest .stk-hit b { min-width: 64px; }
+.stk-suggest .stk-hit .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stk-suggest .stk-none { padding: 8px 10px; }
+.mon-main-title .voice-tag { margin-left: 8px; vertical-align: middle; }
+.mon-main-title .stk-unwatch { margin-left: 8px; vertical-align: middle; }
+
+/* The Polymarket tab (polymarket.js): event cards, an event opened (its markets, outcomes, chart, order book, trades, holders),
+   the leaderboard and wallets. Charts, stats and chips are the Money tab's. */
+.pm-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pm-toolbar select { width: auto; }
+.pm-cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.pm-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.pm-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: var(--shadow-xs); transition: border-color var(--t-fast), background-color var(--t-fast); }
+.pm-card:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.pm-card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.pm-card-head { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.pm-title { font-weight: 650; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pm-pic { flex: none; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--surface-3); }
+.pm-pic.lg { width: 56px; height: 56px; }
+.pm-pic-none { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: var(--muted); }
+.pm-card-body { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.pm-card-foot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.pm-big { display: flex; align-items: baseline; gap: 8px; }
+.pm-big b { font-size: 26px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.pm-yesno { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pm-yes, .pm-no { padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
+.pm-yes { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+.pm-no { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+.pm-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px 44px; gap: 8px; align-items: center; font-size: 13px; }
+.pm-row-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pm-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.pm-bar { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+.pm-bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width var(--t-fast); }
+.pm-live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); vertical-align: middle; }
+.pm-more { display: flex; justify-content: center; margin-top: 12px; }
+.pm-detail .card-body { display: flex; flex-direction: column; gap: 14px; }
+.pm-detail-head { display: flex; gap: 12px; align-items: center; }
+.pm-detail-head .grow { flex: 1; min-width: 0; }
+.pm-detail-title { font-size: 17px; font-weight: 700; line-height: 1.3; }
+.pm-markets { max-height: 340px; overflow-y: auto; }
+.pm-markets tr.on td { background: var(--accent-soft); }
+.pm-market { display: flex; flex-direction: column; gap: 12px; }
+.pm-market-q { font-weight: 650; }
+.pm-outcomes { display: flex; flex-wrap: wrap; gap: 8px; }
+.pm-outcome { display: flex; align-items: baseline; gap: 8px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer; }
+.pm-outcome b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.pm-outcome.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.pm-outcome.won { border-color: var(--ok); }
+.pm-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.pm-h { font-size: 14px; margin: 0 0 6px; }
+.pm-book { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pm-level { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 3px 6px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.pm-level > b, .pm-level > span:last-child { position: relative; z-index: 1; }
+.pm-level > span:last-child { text-align: right; }
+.pm-level.head { color: var(--muted); font-size: 11.5px; }
+.pm-level.bid b { color: var(--ok); }
+.pm-level.ask b { color: var(--bad); }
+.pm-depth { position: absolute; inset: 1px 0; border-radius: 3px; overflow: hidden; }
+.pm-depth > span { display: block; height: 100%; width: 0; margin-left: auto; }
+.pm-level.bid .pm-depth > span { background: color-mix(in srgb, var(--ok) 13%, transparent); }
+.pm-level.ask .pm-depth > span { background: color-mix(in srgb, var(--bad) 13%, transparent); }
+.pm-small td, .pm-small th { padding-top: 5px; padding-bottom: 5px; font-size: 12.5px; }
+.pm-link { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-align: left; }
+.pm-link:hover { text-decoration: underline; }
+.pm-rules summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.pm-rules p { white-space: pre-line; margin: 8px 0 0; }
+.pm-settled { padding: 10px 18px 14px; }
+@media (max-width: 640px) {
+  .pm-cards { grid-template-columns: minmax(0, 1fr); }
+  .pm-book { grid-template-columns: minmax(0, 1fr); }
+  .pm-detail-head { flex-wrap: wrap; }
+}
