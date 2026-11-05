@@ -1,6 +1,6 @@
 # Setting up the Agentic server
 
-This guide takes you from a fresh clone to a running server. Then it covers the optional parts: tools, services, a Windows Service and publishing the client apps. [README.md](README.md) explains every feature and setting in depth.
+This guide takes you from a fresh clone to a running server. Then it covers the optional parts: tools, services, a Windows Service and publishing the client apps. The [reference manual](docs/REFERENCE.md) explains every feature and setting in depth.
 
 **Docker:** to run the published image on Linux instead of building on Windows, go straight to [section 11](#11-docker).
 
