@@ -56,6 +56,88 @@ The server is one self-contained executable with an embedded web app and a SQLit
   </tr>
 </table>
 
+### Media and data tabs
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/audio.png" alt="Audio tab: text to speech with voice, language, stream format and every XTTS setting"><br>
+      <sub><b>Audio</b>: speak any text with every XTTS setting, clone voices, and keep the clips (<a href="https://github.com/smurflabs/Agentic_xtts">Agentic XTTS</a>).</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/images.jpg" alt="Images tab: Stable Diffusion prompt, model and sampling settings, with a live preview of the picture being made"><br>
+      <sub><b>Images</b>: Stable Diffusion 1.5 with a live preview while the picture is made (<a href="https://github.com/smurflabs/Agentic_sdimages">Agentic SD Images</a>).</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/money.png" alt="Money tab: live crypto prices and exchange rates with charts"><br>
+      <sub><b>Money</b>: live crypto prices and exchange rates with charts, and a watch list for each account.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/stocks.png" alt="Stocks tab: indexes and stocks with intraday charts and a ticker lookup"><br>
+      <sub><b>Stocks</b>: indexes and stocks with charts for any range, and a lookup of any US ticker.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/news.png" alt="News tab: headlines from 42 outlets, filtered by region and outlet"><br>
+      <sub><b>News</b>: headlines from 42 outlets' feeds, by region and outlet. Agents can search them too.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/polymarket.gif" alt="Polymarket tab: prediction markets with live odds, bids and asks"><br>
+      <sub><b>Polymarket</b>: prediction markets live, with odds, bids, asks and volume.</sub>
+    </td>
+  </tr>
+</table>
+
+### Client apps
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/desktop-home.png" alt="Agentic Desktop on Windows: the web app with This computer: Skills, Local MCP and Desktop settings"><br>
+      <sub><b><a href="https://github.com/smurflabs/Agentic_desktop">Agentic Desktop</a></b>: the whole web app in its own window, plus Skills, local MCP servers and tools on your computer.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/desktop-chat.png" alt="Agentic Desktop chat with the Skills and This PC chips and the tokens-per-second gauge"><br>
+      <sub><b>Desktop chat</b>: skills and this computer's tools in the message box, and live speed on the model bar.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top">
+      <img src="docs/screenshots/desktop-multitask.png" alt="Agentic Desktop Multitask: two chats side by side"><br>
+      <sub><b>Multitask</b>: up to four chats side by side, each answering live.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/vscode-lite.png" alt="Agentic for VS Code in Lite mode next to VS Code's Chat and Claude Code"><br>
+      <sub><b><a href="https://github.com/smurflabs/Agentic_vscode">Agentic for VS Code</a></b>, Lite mode: just the chat, next to VS Code's own Chat and Claude Code.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/vscode-lite-chat.png" alt="Agentic for VS Code answer with a runnable Python block: Run Python, Apply and Copy"><br>
+      <sub><b>Code blocks in VS Code</b>: Run, Apply to a file, or Copy.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/vscode-full.png" alt="Agentic for VS Code in Full app mode"><br>
+      <sub><b>Full app</b>: every page of the web app inside VS Code.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/cli-session.png" alt="Agentic CLI session: a streamed answer with folded thinking and a status footer"><br>
+      <sub><b><a href="https://github.com/smurflabs/Agentic_cli">Agentic CLI</a></b>: answers stream in the terminal, with folded thinking, speed and context use.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top">
+      <img src="docs/screenshots/cli-commands.png" alt="Agentic CLI command menu after typing a slash" width="70%"><br>
+      <sub><b>CLI commands</b>: type <code>/</code> for every command with its description.</sub>
+    </td>
+  </tr>
+</table>
+
 ## Features
 
 ### Autonomous agents
