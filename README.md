@@ -10,7 +10,7 @@
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
 ![Runs on Windows and Docker](https://img.shields.io/badge/runs%20on-Windows%20%7C%20Docker-lightgrey)
 
-[Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features) · [Services](#services-for-every-feature) · [Setup guide](SETUP.md) · [Reference manual](docs/REFERENCE.md) · [Client apps](#client-apps)
+[Quick start](#quick-start) · [Screenshots](#screenshots) · [Features](#features) · [Services](#services-for-every-feature) · [MCP servers](#mcp-servers) · [Setup guide](SETUP.md) · [Reference manual](docs/REFERENCE.md) · [Client apps](#client-apps)
 
 </div>
 
@@ -174,7 +174,7 @@ The server is one self-contained executable with an embedded web app and a SQLit
 ### Tools (MCP)
 
 - **MCP client** for stdio and HTTP servers. It reconnects and health-checks servers, controls access per agent and per user, and applies approval rules.
-- **16 built-in tool servers** in the same executable:
+- **16 built-in tool servers** in the same executable ([all of them, and how to add your own](#mcp-servers)):
   - files and code: shared storage, shell, git, Gitea, code review, files and OCR
   - documents and data: documents (reading and writing PDF and Office files), databases (SQLite, PostgreSQL, MySQL, SQL Server), data and charts
   - systems: network checks and SSH, Docker, Windows administration, dependency audits
@@ -279,6 +279,89 @@ Speech, pictures and songs come from three small self-hosted servers, each in it
 | **Agentic Suno**: songs and lyrics with your Suno account | [Agentic_suno](https://github.com/smurflabs/Agentic_suno) | The Music tab | `Music.BaseUrl` |
 
 Each of Agentic's own services has its own API key. An administrator pastes it on the tab's **Settings** page, where it is kept in Agentic's encrypted vault and never reaches a browser. [SETUP.md](SETUP.md#6-optional-tools-and-services) covers installing and connecting every service.
+
+## MCP servers
+
+Agents and chats use tools through the [Model Context Protocol](https://modelcontextprotocol.io) (MCP). Agentic comes with 16 tool servers built into its own executable, connects to any other MCP server, and lets every user add their own.
+
+### Built-in tool servers
+
+These run as child processes of Agentic itself (`"Command": "{self}"`), so they need no other software unless noted. Each one is an entry in `McpServers`, and an agent uses a server only when it is granted (`AllowedMcpServers`). In Chat, people turn servers on in the **Tools** menu. The tools in the last column wait for an administrator's approval in the Inbox by default (`ApprovalRequiredTools`).
+
+| Server | What it gives agents and chats | Needs approval |
+|---|---|---|
+| `storage` | A shared folder where agents leave files for each other: list, read, write, move, delete, search and grep | – |
+| `shell` | PowerShell or cmd commands on the Agentic host, including background commands (Windows only) | `run_command`, `run_command_background` |
+| `code-review` | Deterministic code review: secrets, SQL and shell injection, unsafe deserialization, weak crypto, swallowed errors and complexity; diffs and checklists | – |
+| `git` | Status, diff, log, blame, branches, commit, merge, stash, tag, clone, pull and push | `git_push` |
+| `gitea` | Your Gitea: the official [gitea-mcp](https://gitea.com/gitea/gitea-mcp) (repositories, issues, pull requests, releases, Actions) plus the full REST API. Needs `gitea-mcp.exe` and a token; off by default | – |
+| `documents` | Reads PDF, Word, Excel, PowerPoint, CSV, email and HTML; writes .docx, .pdf, .xlsx and .csv | – |
+| `database` | SQLite, PostgreSQL, MySQL and SQL Server: schema, read-only queries, query plans, exports and writes | `execute` |
+| `data` | Converts and queries JSON, YAML, TOML, XML and CSV; JSON Schema; statistics and finance math; charts and Mermaid diagrams | – |
+| `files` | Archives (zip, tar), hashes, real file types, resizing and converting images, and OCR | – |
+| `email` | Sends and reads mail over SMTP and IMAP, with a recipient allowlist and an hourly limit. Off until configured | `send_email` |
+| `netops` | Ping, DNS, port checks, TLS certificates, HTTP checks, traceroute, and commands over SSH | `ssh_run` |
+| `deps` | Package info and versions, vulnerability checks (OSV.dev) and dependency audits | – |
+| `docker` | Containers, images, logs, stats and Compose projects through the Docker Engine API. Off until configured | `control_container`, `remove_container`, `pull_image`, `exec_in_container` |
+| `windows` | The host's state: services, event logs, processes, scheduled tasks and network connections (Windows only) | `control_service`, `end_process` |
+| `utilities` | Time zones, date math, exact calculation, unit conversion, hashing and encoding, passwords, regex, cron and text tools | – |
+| `lookups` | Public holidays, business days, currency conversion, IP lookup and WHOIS | – |
+
+The shipped configuration also has three servers that need outside software. They are **off** until you set that software up:
+
+| Server | What it gives | Needs |
+|---|---|---|
+| `code-exec` | A Linux sandbox: shell, files and processes. It also runs the chat's code interpreter, Run buttons and app previews | [Open Terminal](https://github.com/open-webui/open-terminal) (see [Services](#services-for-every-feature)) |
+| `browser` | A headless Chrome the model drives: open pages, click, type, fill forms and take screenshots | Node.js 20+, [`@playwright/mcp`](https://www.npmjs.com/package/@playwright/mcp) and Chrome |
+| `rea` | Reverse engineering of native binaries, .NET assemblies, JavaScript and Electron apps, Android APKs and firmware | Node.js and Ghidra |
+
+Web search (`search_web`) is built into Agentic itself rather than being an MCP server.
+
+### Add your own
+
+**1. For agents (administrators).** Add an entry to `McpServers` in `appsettings.json` and restart Agentic:
+
+```jsonc
+"McpServers": [
+  // A hosted server over Streamable HTTP; its token comes from an environment variable
+  { "Id": "company-api", "Name": "Company API", "Enabled": true, "Transport": "Http",
+    "Endpoint": "https://mcp.example.com/mcp", "HttpMode": "StreamableHttp",
+    "Auth": { "Type": "Bearer", "SecretEnvVar": "MCP_COMPANY_API_TOKEN" },
+    "ApprovalRequiredTools": [ "delete_record" ] },
+  // A program started on the Agentic host (stdio)
+  { "Id": "filesystem", "Name": "Filesystem", "Enabled": true, "Transport": "Stdio",
+    "Command": "npx", "Arguments": [ "-y", "@modelcontextprotocol/server-filesystem", "C:\\work" ] }
+]
+```
+
+- **Grant it:** give it to agents with `AllowedMcpServers`, in the agent's configuration or on its **Edit** page. `AllowedMcpTools` and `DeniedMcpTools` (`"server:tool"`) narrow it down to single tools.
+- **Settings:**
+  - `Auth.Type` is `Bearer`, `Header` or `None`. The secret comes from `Auth.SecretEnvVar`, or from `Auth.Secret`.
+  - `ExcludeTools` hides tools from everyone.
+  - `DefaultArguments` fills in arguments the model leaves out.
+  - `HealthCheck` checks a server regularly. When it stops answering, its calls fail at once instead of waiting, its connection is reset, and an optional `RestartCommand` runs.
+- **Tool names:** the model sees the tools as `mcp__<server>__<tool>`. Agents load the descriptions of rarely used tools only when they need them.
+
+**2. For your own chats (every user).** Open **My MCP servers** in the web app. No file editing or restart is needed.
+- **Add a hosted server** with its URL and a token header. You can also use **Sign in** for servers that use OAuth. Only you see the servers you add.
+- **Administrators** can also add servers for everyone, and programs that run on the Agentic host.
+- **Install on my computer** sends a server that must run on your own computer to your desktop app or VS Code, where the add form opens filled in.
+- **Share a server:** a link to `/my-mcp?add=<base64url JSON>` opens the page with that server ready to add, which is handy for READMEs.
+
+**3. On your own computer.** The [desktop app](https://github.com/smurflabs/Agentic_desktop), [VS Code extension](https://github.com/smurflabs/Agentic_vscode) and [CLI](https://github.com/smurflabs/Agentic_cli) run local MCP servers over stdio, Streamable HTTP or SSE. They read the servers you already set up in Claude Code, Claude Desktop and VS Code, and chats in the web app can use them while the app is open.
+
+**4. Write your own.** [`samples/EchoMcpServer`](samples/EchoMcpServer) is a small VB.NET stdio server on the official MCP C# SDK. Use it as a template for your company's servers.
+
+**The catalog.** The web app, the desktop app, VS Code and the CLI share a list of 21 well-known servers that you add with one click (or with a short form when one needs a key or a folder):
+- **Files and code:** Filesystem, Git, GitHub, Desktop Commander
+- **Browser and web:** Playwright, Chrome DevTools, Fetch, Firecrawl
+- **Search:** Brave Search, Tavily, Exa
+- **Documentation:** Context7, Microsoft Learn, DeepWiki, AWS Documentation
+- **Productivity and data:** Notion, Supabase
+- **Thinking:** Memory, Sequential Thinking, Time
+- **Security:** REA
+
+Every setting is in the [reference manual](docs/REFERENCE.md#6-mcp-servers).
 
 ## How it works
 

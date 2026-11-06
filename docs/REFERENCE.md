@@ -537,6 +537,23 @@ Then grant access per agent with `AllowedMcpServers` (and optionally `AllowedMcp
 
 `HealthCheck` is a watchdog for a server: the host calls `Tool` with `Arguments` every `IntervalSeconds` (and at once after `TimeoutsBeforeCheck` call timeouts in a row) and expects `Expect` in the answer. After `FailuresBeforeRestart` failed checks the server is "not responding": agents' calls to it fail at once with a clear message instead of each waiting `TimeoutSeconds`, the connection is reset (a new session), and when that does not help `RestartCommand` (if set) runs on this host — for example an `ssh` command that restarts the sandbox container. One passing check (every `DownIntervalSeconds` meanwhile) ends it. The code sandbox uses `run_command` `echo ok`.
 
+### My MCP servers (for chats)
+
+**My MCP servers** in the web app adds MCP servers for Chat without editing a file or restarting (`GET`/`POST /api/chat/mcp-servers`).
+
+- **Your own servers:** a hosted server (Streamable HTTP or SSE) with its URL and optional headers, such as `Authorization: Bearer …`. Only you see it, and it appears in your chats' **Tools** menu.
+- **Sign in (OAuth):** a server that uses OAuth shows **Sign in**. The browser opens the server's sign-in page, and the token is kept for you on the server (`/signin`, `/signout`, `/oauth/callback`).
+- **For everyone (administrators):** an administrator can share a server with every user. An administrator can also add a stdio program that runs on the Agentic host.
+- **Install on my computer:** a server that has to run on your own computer goes to your desktop app or VS Code window (`POST /api/chat/mcp-servers/install`). The app opens its add form filled in, so you confirm it there.
+- **The catalog:** the 21 well-known servers (Filesystem, Git, GitHub, Desktop Commander, Playwright, Chrome DevTools, Fetch, Firecrawl, Brave Search, Tavily, Exa, Context7, Microsoft Learn, DeepWiki, AWS Documentation, Notion, Supabase, Memory, Sequential Thinking, Time, REA).
+  - Hosted ones are added here.
+  - Programs are sent to your computer.
+  - The desktop app, VS Code and the CLI (`agentic mcp catalog`) use the same list.
+- **Links:** `/my-mcp?add=<base64url JSON {name, entry}>` opens the page with that server ready to add, so a project's README can link to it.
+- **Access:** administrators limit which servers each account may use under **Users & access**.
+
+Servers for agents stay in `McpServers` (above), granted per agent with `AllowedMcpServers`.
+
 ### Web search
 
 Web search is built in rather than an MCP server. Agents with the `search_web` tool (every agent by default, and subagents) and chats with **Web search** on ask these services in order, the next one when a service fails or finds nothing:
